@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,9 +14,18 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { authClient } from "@/lib/auth-client";
 
-type Props = { name: string; email: string; isAdmin: boolean };
+type Props = { name: string; email: string; image: string | null; isAdmin: boolean };
 
-export function UserMenu({ name, email, isAdmin }: Props) {
+function initials(name: string) {
+  return name
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase())
+    .join("");
+}
+
+export function UserMenu({ name, email, image, isAdmin }: Props) {
   const router = useRouter();
 
   async function signOut() {
@@ -27,10 +36,22 @@ export function UserMenu({ name, email, isAdmin }: Props) {
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger render={<Button variant="ghost" />}>{name}</DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-56">
+      <DropdownMenuTrigger
+        aria-label="Account menu"
+        className="rounded-full outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
+      >
+        <Avatar>
+          {/* Google profile photos can refuse requests that carry a referrer. */}
+          {image && <AvatarImage src={image} alt="" referrerPolicy="no-referrer" />}
+          <AvatarFallback>{initials(name)}</AvatarFallback>
+        </Avatar>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="w-60">
         <DropdownMenuGroup>
-          <DropdownMenuLabel className="truncate">{email}</DropdownMenuLabel>
+          <DropdownMenuLabel className="flex flex-col gap-0.5">
+            <span className="truncate font-medium text-foreground">{name}</span>
+            <span className="truncate text-xs font-normal">{email}</span>
+          </DropdownMenuLabel>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuItem render={<Link href="/dashboard" />}>My books</DropdownMenuItem>

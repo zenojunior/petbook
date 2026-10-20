@@ -60,5 +60,8 @@
   }
   html {
     @apply font-sans;
+    /* Always reserve the scrollbar's space, so the page does not jump sideways between short
+       and long pages, or when a menu locks scrolling. */
+    scrollbar-gutter: stable;
   }
 }

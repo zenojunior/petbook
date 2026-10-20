@@ -16,9 +16,12 @@ export function SiteHeader() {
           <Button variant="ghost" nativeButton={false} render={<Link href="/#explore" />}>
             Explore
           </Button>
-          <Suspense fallback={null}>
-            <SessionArea />
-          </Suspense>
+          {/* Fixed width, so the session part streaming in does not push the links around. */}
+          <div className="flex w-20 justify-end">
+            <Suspense fallback={null}>
+              <SessionArea />
+            </Suspense>
+          </div>
         </nav>
       </div>
     </header>
@@ -34,5 +37,7 @@ async function SessionArea() {
       </Button>
     );
   }
-  return <UserMenu name={user.name} email={user.email} isAdmin={user.role === "admin"} />;
+  return (
+    <UserMenu name={user.name} email={user.email} image={user.image} isAdmin={user.role === "admin"} />
+  );
 }

@@ -25,6 +25,7 @@ export type CurrentUser = {
   id: string;
   name: string;
   email: string;
+  image: string | null;
   role: "user" | "admin";
 };
 
@@ -33,8 +34,8 @@ export type CurrentUser = {
 export async function getCurrentUser(): Promise<CurrentUser | null> {
   const session = await auth.api.getSession({ headers: await headers() });
   if (!session) return null;
-  const { id, name, email, role } = session.user;
-  return { id, name, email, role: role === "admin" ? "admin" : "user" };
+  const { id, name, email, image, role } = session.user;
+  return { id, name, email, image: image ?? null, role: role === "admin" ? "admin" : "user" };
 }
 
 export async function requireUser(returnTo: string): Promise<CurrentUser> {
