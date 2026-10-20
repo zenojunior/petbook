@@ -8,7 +8,9 @@ Works: Next.js (App Router) + shadcn/ui, PostgreSQL schema (users, pets, books, 
 
 Also: the landing page (the map preview on it is illustrative) and a placeholder dashboard behind sign-in.
 
-Not yet: book editor, real map, moderation.
+Admin panel (read-only for now): overview with counts, users, books in any status, and the review queue with the reasons behind each decision.
+
+Not yet: book editor, real map, moderation, admin actions (approve/reject, ban).
 
 ## Running locally
 

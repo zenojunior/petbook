@@ -1,6 +1,10 @@
 /* Design tokens for /admin. The admin layout wraps everything in .admin,
-   which redefines the same variables, so the shadcn components stay the same. */
+   which redefines the same variables, so the shadcn components stay the same.
+   The admin keeps the plain shadcn dark theme, not the Petbook brand. */
 .admin {
+  --radius: 0.625rem;
+  /* --font-heading points at the brand serif; the admin uses Geist for headings too. */
+  --font-fraunces: var(--font-geist-sans);
   --background: oklch(0.145 0 0);
   --foreground: oklch(0.985 0 0);
   --card: oklch(0.205 0 0);
