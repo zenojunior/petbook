@@ -168,6 +168,14 @@ export const moderationRuns = pgTable(
   (table) => [index("moderation_runs_book_id_idx").on(table.bookId), index("moderation_runs_owner_id_idx").on(table.ownerId)],
 );
 
+// Site-wide settings the admin can change without a deploy. One row per key.
+// Known keys: "featured_book_id" (the book shown on the landing page; absent = a random one).
+export const siteSettings = pgTable("site_settings", {
+  key: text("key").primaryKey(),
+  value: text("value").notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
 export const petsRelations = relations(pets, ({ one }) => ({
   owner: one(user, { fields: [pets.ownerId], references: [user.id] }),
   book: one(books),

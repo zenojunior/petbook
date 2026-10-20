@@ -1,13 +1,14 @@
 "use server";
 
 import { and, asc, eq, inArray, isNull } from "drizzle-orm";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, updateTag } from "next/cache";
 import { z } from "zod";
 import { db } from "@/db";
 import { books, moderationRuns, pages, pets, reviews } from "@/db/schema";
 import { requireAdmin, requireUser } from "@/lib/auth";
 import { canPublish } from "@/lib/domain/can-publish";
 import { transition } from "@/lib/domain/transition";
+import { FEATURED_TAG } from "@/lib/books/featured";
 import { moderateBook } from "@/lib/moderation/decisions";
 import { ruleCheck } from "@/lib/moderation/rule-check";
 import { checkRateLimit } from "@/lib/rate-limit";
@@ -93,6 +94,8 @@ function invalidateBook(id: string, slug: string) {
   for (const path of ["/", "/explore", "/dashboard", `/dashboard/books/${id}`, "/admin", "/admin/books", `/admin/books/${id}`, "/admin/reviews", "/admin/users", `/b/${slug}`]) revalidatePath(path);
   revalidatePath("/s/[token]", "page");
   revalidatePath("/admin/users/[id]", "page");
+  // The landing page shows a published book from cache: drop it when a book changes state.
+  updateTag(FEATURED_TAG);
 }
 
 
