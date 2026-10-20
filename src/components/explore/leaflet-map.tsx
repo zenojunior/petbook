@@ -7,7 +7,7 @@ import "leaflet.markercluster/dist/MarkerCluster.css";
 import "leaflet.markercluster/dist/MarkerCluster.Default.css";
 import "./map.css";
 import Link from "next/link";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import { MapContainer, TileLayer, useMap } from "react-leaflet";
 import { CoverSurface } from "@/components/book/cover-surface";
@@ -48,6 +48,16 @@ function BookPins({ books }: { books: ExploreBook[] }) {
 }
 
 export default function LeafletMap({ books }: { books: ExploreBook[] }) {
+  // react-leaflet removes the map when effects are cleaned up (Strict Mode, or a
+  // cached page being hidden on navigation) but never rebuilds it, so children
+  // like TileLayer would attach to a dead map. Build a fresh map on every mount.
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- the flag must follow the effect lifecycle
+    setMounted(true);
+    return () => setMounted(false);
+  }, []);
+  if (!mounted) return null;
   return (
     <MapContainer center={[15, 0]} zoom={2} minZoom={2} maxZoom={18} scrollWheelZoom={false} className="h-full w-full" worldCopyJump>
       <TileLayer referrerPolicy="strict-origin-when-cross-origin" url="https://tile.openstreetmap.org/{z}/{x}/{y}.png" attribution={'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'} />
