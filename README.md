@@ -4,7 +4,9 @@ Write a small illustrated book about your pet and pin it on a world map.
 
 ## Status
 
-Project skeleton only: Next.js (App Router) + Tailwind, Drizzle ORM wired to PostgreSQL, Vitest. No features yet.
+Works: Next.js (App Router) + shadcn/ui, PostgreSQL schema (users, pets, books, pages, reviews) with Drizzle migrations, Better Auth email/password API at `/api/auth/*`.
+
+Not yet: sign-in screens, admin protection, book editor, map, moderation.
 
 ## Running locally
 
@@ -12,7 +14,8 @@ Requirements: Node 24+ and pnpm.
 
 ```bash
 pnpm install
-cp .env.example .env   # then set DATABASE_URL
+cp .env.example .env   # then set DATABASE_URL and BETTER_AUTH_SECRET
+pnpm db:migrate
 pnpm dev               # http://localhost:3000
 ```
 
@@ -20,4 +23,4 @@ Other scripts: `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm db:generate`, `
 
 ## Next steps
 
-- Database schema, auth, book editor, map, moderation.
+- Sign-in screens, admin protection, book editor, map, moderation.
