@@ -18,7 +18,7 @@ export default function AdminHome() {
           <CardDescription>The same Card and Button, with the admin tokens.</CardDescription>
         </CardHeader>
         <CardContent className="text-sm">
-          Colors, radius and fonts come from styles/tokens.admin.css.
+          Colors, radius and fonts come from src/styles/tokens.admin.css.
         </CardContent>
         <CardFooter>
           <Button variant="outline" nativeButton={false} render={<Link href="/" />}>

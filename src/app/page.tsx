@@ -20,7 +20,7 @@ export default function Home() {
           <CardDescription>Example screen using the app tokens.</CardDescription>
         </CardHeader>
         <CardContent className="text-sm">
-          Colors, radius and fonts come from styles/tokens.app.css.
+          Colors, radius and fonts come from src/styles/tokens.app.css.
         </CardContent>
         <CardFooter>
           <Button nativeButton={false} render={<Link href="/admin" />}>
