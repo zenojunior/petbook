@@ -6,12 +6,7 @@ import { headers } from "next/headers";
 import { notFound, redirect } from "next/navigation";
 import { db } from "@/db";
 import * as schema from "@/db/schema";
-
-function requiredEnv(name: string): string {
-  const value = process.env[name];
-  if (!value) throw new Error(`${name} is not set. See .env.example.`);
-  return value;
-}
+import { requiredEnv } from "@/lib/env";
 
 export const auth = betterAuth({
   database: drizzleAdapter(db, { provider: "pg", schema }),

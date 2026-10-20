@@ -21,6 +21,17 @@ pnpm dev               # http://localhost:3000
 
 Other scripts: `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm db:generate`, `pnpm db:migrate`.
 
+## Deploy (Docker / Dokploy)
+
+The `Dockerfile` is a multi-stage build that ships only the Next.js standalone server. No secrets are needed to build; set these env vars on the container: `DATABASE_URL`, `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL` (the public URL), `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`.
+
+```bash
+docker build -t petbook .
+docker run --rm -p 3000:3000 --env-file .env petbook
+```
+
+Migrations are not run by the container: apply them with `pnpm db:migrate` before deploying a schema change.
+
 ## Next steps
 
 - Book editor, map, moderation.

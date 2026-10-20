@@ -1,0 +1,11 @@
+# Keep the build context small and never ship local secrets or personal files.
+.git
+.next
+node_modules
+.env*
+!.env.example
+notes
+.orca
+*.tsbuildinfo
+Dockerfile
+.dockerignore
