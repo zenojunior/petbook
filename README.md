@@ -4,9 +4,9 @@ Write a small illustrated book about your pet and pin it on a world map.
 
 ## Status
 
-Works: Next.js (App Router) + shadcn/ui, PostgreSQL schema (users, pets, books, pages, reviews) with Drizzle migrations, Better Auth email/password API at `/api/auth/*`.
+Works: Next.js (App Router) + shadcn/ui, PostgreSQL schema (users, pets, books, pages, reviews) with Drizzle migrations, Better Auth sign-in, admin area guarded on the server (`pnpm admin:grant <email>` gives the role).
 
-Not yet: sign-in screens, admin protection, book editor, map, moderation.
+Not yet: book editor, map, moderation.
 
 ## Running locally
 
@@ -23,4 +23,4 @@ Other scripts: `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm db:generate`, `
 
 ## Next steps
 
-- Sign-in screens, admin protection, book editor, map, moderation.
+- Book editor, map, moderation.

@@ -1,14 +1,5 @@
-import Link from "next/link";
 import { Logo } from "@/components/logo";
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function Home() {
   return (
@@ -22,11 +13,6 @@ export default function Home() {
         <CardContent className="text-sm">
           Colors, radius and fonts come from src/styles/tokens.app.css.
         </CardContent>
-        <CardFooter>
-          <Button nativeButton={false} render={<Link href="/admin" />}>
-            See the admin theme
-          </Button>
-        </CardFooter>
       </Card>
     </main>
   );

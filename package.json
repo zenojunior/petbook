@@ -10,7 +10,8 @@
     "typecheck": "next typegen && tsc --noEmit",
     "test": "vitest run",
     "db:generate": "drizzle-kit generate",
-    "db:migrate": "drizzle-kit migrate"
+    "db:migrate": "drizzle-kit migrate",
+    "admin:grant": "node --env-file=.env src/db/grant-admin.ts"
   },
   "dependencies": {
     "@base-ui/react": "^1.9.0",

@@ -48,6 +48,7 @@ public/                static files served at / (Next requires it at the root)
 
 - `/admin` uses the same shadcn components with its **own darker theme**: the admin layout wraps everything in an `.admin` class that redefines the CSS variables (`src/styles/tokens.admin.css`). Change colors, radius and fonts in the token files, not in components. Never fork components to restyle them.
 - Access is `user.role = 'admin'` (column added by the Better Auth `admin` plugin). The "Admin" item in the user menu is only a convenience.
+- Two checks guard it: `src/proxy.ts` returns a 404 for `/admin` and `/api/admin` to non-admins, and every admin page, data read and action calls `requireAdmin()` itself. Never gate access in a layout: a layout does not stop its pages from rendering or from reaching the RSC payload.
 
 ## Domain
 
