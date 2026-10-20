@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Logo } from "@/components/logo";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -14,6 +15,7 @@ export default function Home() {
     <main className="flex flex-1 items-center justify-center p-4">
       <Card className="w-full max-w-sm">
         <CardHeader>
+          <Logo className="text-lg" />
           <CardTitle>Hello, world</CardTitle>
           <CardDescription>Example screen using the app tokens.</CardDescription>
         </CardHeader>
