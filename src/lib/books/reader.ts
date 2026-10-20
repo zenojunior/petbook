@@ -1,7 +1,7 @@
 // Data reads for the reader: a published book by its slug, or any book by its share token.
 // The access rules are in src/lib/domain/book-access.ts; these functions return null whenever a
 // book must not be shown, so the page says "not available" without leaking anything.
-import { asc, eq } from "drizzle-orm";
+import { and, asc, eq, isNull } from "drizzle-orm";
 import { db } from "@/db";
 import { books, pages, pets } from "@/db/schema";
 import type { BookViewData } from "@/components/book/types";
@@ -40,7 +40,7 @@ async function findBook(where: ReturnType<typeof eq>): Promise<ReaderBook | null
     .select({ book: books, pet: pets })
     .from(books)
     .innerJoin(pets, eq(books.petId, pets.id))
-    .where(where);
+    .where(and(where, isNull(books.deletedAt)));
   if (!row) return null;
 
   const bookPages = await db

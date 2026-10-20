@@ -58,3 +58,13 @@ Migrations are not run by the container: apply them with `pnpm db:migrate` befor
 - Animate the flight from a map pin or shelf into the reader.
 - A richer, Notion-like editor (Tiptap) and writing directly on the page.
 - In the editor on phones, a toggle between the form and the preview.
+
+## Review audit and deletion
+
+The admin overview, user pages and book pages show recorded review usage and estimated USD costs, including deleted books. Each new Decisions API attempt creates an immutable `moderation_runs` record with the prompt version, exact questions/instructions, submitted text, referenced images and their SHA-256 digests, provider response, request id, timings and token usage. Images used in historical reviews are retained when the author later edits a draft. A book's admin page lists every run, with pagination, so resubmissions remain separate.
+
+Cost estimates use reported input tokens and the per-million price stored on that run. `OPENAI_DECISIONS_INPUT_USD_PER_MILLION` defaults to `0.10`; override it for the applicable pricing. This is an estimate, not the provider invoice. Missing usage, interrupted calls and older AI reviews are explicitly shown as unpriced; they are never counted as free or retroactively reconstructed from the current prompt.
+
+Deleting a book sets `books.deleted_at` and revokes its share token. The author loses editor access and the book disappears from their dashboard, the map and both public/shared readers. All owner mutations reject deleted books. Images are served with `private, no-store`, and a deleted book's images are admin-only. Admins retain the book, pages, images, reviews and costs, with a Deleted badge and a filter in the books list. A moderation result that arrives after deletion is retained in the audit but cannot publish the book.
+
+Apply migration `0004_polite_silver_sable` before running the updated app. Existing books start active and existing reviews keep their previous decisions; detailed request data is recorded only for subsequent attempts.

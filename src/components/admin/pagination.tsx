@@ -8,16 +8,17 @@ type Props = {
   page: number;
   pageSize: number;
   total: number;
+  pageKey?: string;
 };
 
-export function Pagination({ pathname, params, page, pageSize, total }: Props) {
+export function Pagination({ pathname, params, page, pageSize, total, pageKey = "page" }: Props) {
   const lastPage = Math.max(1, Math.ceil(total / pageSize));
   if (lastPage === 1) return null;
 
   function href(target: number) {
     const search = new URLSearchParams();
     for (const [key, value] of Object.entries(params)) if (value) search.set(key, value);
-    if (target > 1) search.set("page", String(target));
+    if (target > 1) search.set(pageKey, String(target));
     const query = search.toString();
     return query ? `${pathname}?${query}` : pathname;
   }

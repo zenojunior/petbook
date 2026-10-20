@@ -9,6 +9,7 @@ import {
   integer,
   jsonb,
   pgEnum,
+  numeric,
   pgTable,
   text,
   timestamp,
@@ -16,6 +17,7 @@ import {
 } from "drizzle-orm/pg-core";
 import { coverColors, coverPatterns } from "../lib/domain/book-cover";
 import { user } from "./auth-schema";
+import type { ModerationInputSnapshot, ModerationQuestion } from "../lib/moderation/audit";
 
 export * from "./auth-schema";
 
@@ -89,6 +91,8 @@ export const books = pgTable(
     // Resetting it gives a new token, so old links stop working.
     shareToken: text("share_token").unique(),
     publishedAt: timestamp("published_at"),
+    // Removed from every author/public read; retained for admin audit and costs.
+    deletedAt: timestamp("deleted_at"),
     ...timestamps,
   },
   (table) => [
@@ -132,6 +136,38 @@ export const reviews = pgTable(
   (table) => [index("reviews_book_id_idx").on(table.bookId)],
 );
 
+export const moderationRuns = pgTable(
+  "moderation_runs",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    bookId: uuid("book_id").references(() => books.id, { onDelete: "set null" }),
+    ownerId: text("owner_id").references(() => user.id, { onDelete: "set null" }),
+    reviewId: uuid("review_id").unique().references(() => reviews.id, { onDelete: "set null" }),
+    bookTitle: text("book_title").notNull(),
+    model: text("model").notNull(),
+    promptVersion: text("prompt_version").notNull(),
+    state: text("state").$type<"pending" | "completed" | "failed" | "not_sent">().notNull(),
+    questions: jsonb("questions").$type<ModerationQuestion[]>().notNull(),
+    inputSnapshot: jsonb("input_snapshot").$type<ModerationInputSnapshot>(),
+    // Provider JSON, never HTTP headers or credentials.
+    response: jsonb("response").$type<unknown>(),
+    decision: reviewDecision("decision"),
+    reasons: jsonb("reasons").$type<string[]>().default([]).notNull(),
+    requestId: text("request_id"),
+    httpStatus: integer("http_status"),
+    errorCode: text("error_code"),
+    inputTokens: integer("input_tokens"),
+    outputTokens: integer("output_tokens"),
+    inputUsdPerMillion: numeric("input_usd_per_million", { precision: 16, scale: 6 }).notNull(),
+    estimatedCostUsd: numeric("estimated_cost_usd", { precision: 20, scale: 10 }),
+    startedAt: timestamp("started_at").defaultNow().notNull(),
+    sentAt: timestamp("sent_at"),
+    completedAt: timestamp("completed_at"),
+    durationMs: integer("duration_ms"),
+  },
+  (table) => [index("moderation_runs_book_id_idx").on(table.bookId), index("moderation_runs_owner_id_idx").on(table.ownerId)],
+);
+
 export const petsRelations = relations(pets, ({ one }) => ({
   owner: one(user, { fields: [pets.ownerId], references: [user.id] }),
   book: one(books),
@@ -142,6 +178,7 @@ export const booksRelations = relations(books, ({ one, many }) => ({
   owner: one(user, { fields: [books.ownerId], references: [user.id] }),
   pages: many(pages),
   reviews: many(reviews),
+  moderationRuns: many(moderationRuns),
 }));
 
 export const pagesRelations = relations(pages, ({ one }) => ({
@@ -151,4 +188,10 @@ export const pagesRelations = relations(pages, ({ one }) => ({
 export const reviewsRelations = relations(reviews, ({ one }) => ({
   book: one(books, { fields: [reviews.bookId], references: [books.id] }),
   reviewer: one(user, { fields: [reviews.reviewerId], references: [user.id] }),
+}));
+
+export const moderationRunsRelations = relations(moderationRuns, ({ one }) => ({
+  book: one(books, { fields: [moderationRuns.bookId], references: [books.id] }),
+  owner: one(user, { fields: [moderationRuns.ownerId], references: [user.id] }),
+  review: one(reviews, { fields: [moderationRuns.reviewId], references: [reviews.id] }),
 }));

@@ -5,6 +5,7 @@ import { Suspense } from "react";
 import { EmptyRow } from "@/components/admin/empty-row";
 import { Field } from "@/components/admin/field";
 import { formatBytes, formatDate, formatDateTime } from "@/components/admin/format";
+import { ModerationUsageCard } from "@/components/admin/moderation-usage";
 import { PageHeader } from "@/components/admin/page-header";
 import { StatusBadge } from "@/components/admin/status-badge";
 import { Badge } from "@/components/ui/badge";
@@ -47,6 +48,7 @@ async function UserDetail({ params }: Pick<PageProps<"/admin/users/[id]">, "para
         </div>
       </PageHeader>
 
+      <ModerationUsageCard usage={data.moderationUsage} />
       <Card>
         <CardHeader>
           <CardTitle>Account</CardTitle>
@@ -102,6 +104,7 @@ async function UserDetail({ params }: Pick<PageProps<"/admin/users/[id]">, "para
                       <Link href={`/admin/books/${pet.bookId}`} className="flex items-center gap-2 hover:underline">
                         {pet.bookTitle}
                         <StatusBadge status={pet.bookStatus} />
+                        {pet.bookDeletedAt && <Badge variant="destructive">Deleted</Badge>}
                       </Link>
                     ) : (
                       <span className="text-muted-foreground">No book</span>

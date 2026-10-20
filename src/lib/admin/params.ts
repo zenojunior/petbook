@@ -16,6 +16,7 @@ export const usersParams = z.object({ q: queryParam, page: pageParam });
 export const booksParams = z.object({
   q: queryParam,
   status: z.enum(BOOK_STATUSES).optional().catch(undefined),
+  deleted: z.enum(["all", "active", "deleted"]).catch("all"),
   page: pageParam,
 });
 

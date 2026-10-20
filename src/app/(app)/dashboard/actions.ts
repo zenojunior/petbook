@@ -1,7 +1,7 @@
 "use server";
 
 import { randomBytes } from "node:crypto";
-import { and, eq } from "drizzle-orm";
+import { and, eq, isNull } from "drizzle-orm";
 import { redirect } from "next/navigation";
 import { db } from "@/db";
 import { books, pages, pets } from "@/db/schema";
@@ -60,7 +60,7 @@ export async function saveBook(bookId: string, input: BookInput): Promise<Action
     const [book] = await tx
       .select({ id: books.id, petId: books.petId, status: books.status })
       .from(books)
-      .where(and(eq(books.id, bookId), eq(books.ownerId, user.id)))
+      .where(and(eq(books.id, bookId), eq(books.ownerId, user.id), isNull(books.deletedAt)))
       .for("update");
     if (!book) return { ok: false, error: "Book not found." };
     if (book.status !== "draft") return { ok: false, error: "Only drafts can be edited." };
@@ -100,12 +100,15 @@ export async function setShareLink(
   const [book] = await db
     .select({ id: books.id, shareToken: books.shareToken })
     .from(books)
-    .where(and(eq(books.id, parsed.data.bookId), eq(books.ownerId, user.id)));
+    .where(and(eq(books.id, parsed.data.bookId), eq(books.ownerId, user.id), isNull(books.deletedAt)));
   if (!book) return { ok: false, error: "Book not found." };
 
   const { enabled, reset } = parsed.data;
   const token = !enabled ? null : reset || !book.shareToken ? newShareToken() : book.shareToken;
-  await db.update(books).set({ shareToken: token }).where(eq(books.id, book.id));
+  const [updated] = await db.update(books).set({ shareToken: token })
+    .where(and(eq(books.id, book.id), eq(books.ownerId, user.id), isNull(books.deletedAt)))
+    .returning({ id: books.id });
+  if (!updated) return { ok: false, error: "Book not found." };
   return { ok: true, token };
 }
 

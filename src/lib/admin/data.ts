@@ -1,11 +1,12 @@
 // Data reads for the admin panel. Each one calls requireAdmin() itself, so a page that forgets
 // the check, or a future caller outside /admin, still cannot read this data as a non-admin.
 // Admins see everything, drafts included: that is the point of the panel.
-import { and, count, desc, eq, gte, ilike, max, or, sql, type SQL } from "drizzle-orm";
+import { and, count, desc, eq, gte, ilike, max, or, isNull, isNotNull, sql, type SQL } from "drizzle-orm";
 import { db } from "@/db";
 import { account, books, pages, pets, reviews, session, user } from "@/db/schema";
 import { requireAdmin } from "@/lib/auth";
 import { bookUsage, listBookFiles, totalUsage, UPLOAD_DIR } from "@/lib/uploads";
+import { getModerationUsage, knownBookCost, knownOwnerCost, bookUnpriced } from "./moderation";
 import { describeSchema } from "./schema-diagram";
 
 export const PAGE_SIZE = 50;
@@ -25,7 +26,7 @@ export async function getOverview() {
       db.select({ n: count() }).from(user).where(gte(user.createdAt, weekAgo)),
       db.select({ n: count() }).from(user).where(eq(user.role, "admin")),
       db.select({ n: count() }).from(pets),
-      db.select({ status: books.status, n: count() }).from(books).groupBy(books.status),
+      db.select({ status: books.status, n: count() }).from(books).where(isNull(books.deletedAt)).groupBy(books.status),
       db
         .select({ id: user.id, name: user.name, email: user.email, createdAt: user.createdAt })
         .from(user)
@@ -38,6 +39,7 @@ export async function getOverview() {
           status: books.status,
           updatedAt: books.updatedAt,
           ownerName: user.name,
+          deletedAt: books.deletedAt,
         })
         .from(books)
         .innerJoin(user, eq(books.ownerId, user.id))
@@ -51,7 +53,11 @@ export async function getOverview() {
   >;
   for (const row of booksByStatus) statusCounts[row.status] = row.n;
 
+  const [usage, [deleted]] = await Promise.all([
+    getModerationUsage(), db.select({ n: count() }).from(books).where(isNotNull(books.deletedAt)),
+  ]);
   return {
+    usage, deletedBooks: deleted.n,
     users: users.n,
     newUsersThisWeek: newUsers.n,
     admins: admins.n,
@@ -78,6 +84,7 @@ export async function listUsers({ q, page }: { q?: string; page: number }) {
         banned: user.banned,
         createdAt: user.createdAt,
         bookCount: count(books.id),
+        estimatedCostUsd: knownOwnerCost,
       })
       .from(user)
       .leftJoin(books, eq(books.ownerId, user.id))
@@ -112,6 +119,7 @@ export async function getUser(id: string) {
         bookId: books.id,
         bookTitle: books.title,
         bookStatus: books.status,
+        bookDeletedAt: books.deletedAt,
       })
       .from(pets)
       .leftJoin(books, eq(books.petId, pets.id))
@@ -131,6 +139,7 @@ export async function getUser(id: string) {
 
   return {
     profile,
+    moderationUsage: await getModerationUsage({ ownerId: id }),
     providers: providers.map((p) => p.providerId),
     sessionCount: sessions?.total ?? 0,
     lastSeenAt: sessions?.lastSeenAt ?? null,
@@ -142,15 +151,19 @@ export async function getUser(id: string) {
 export async function listBooks({
   q,
   status,
+  deleted = "all",
   page,
 }: {
   q?: string;
   status?: BookStatus;
+  deleted?: "all" | "active" | "deleted";
   page: number;
 }) {
   await requireAdmin();
   const filters: SQL[] = [];
   if (status) filters.push(eq(books.status, status));
+  if (deleted === "active") filters.push(isNull(books.deletedAt));
+  if (deleted === "deleted") filters.push(isNotNull(books.deletedAt));
   if (q) filters.push(ilike(books.title, `%${q}%`));
   const where = filters.length ? and(...filters) : undefined;
 
@@ -172,6 +185,9 @@ export async function listBooks({
         ownerId: user.id,
         ownerName: user.name,
         pageCount: sql<number>`(${pageCount})`.mapWith(Number),
+        deletedAt: books.deletedAt,
+        estimatedCostUsd: knownBookCost,
+        unpricedReviews: bookUnpriced,
       })
       .from(books)
       .innerJoin(pets, eq(books.petId, pets.id))
@@ -227,7 +243,7 @@ export async function getReviewQueue() {
       .from(books)
       .innerJoin(pets, eq(books.petId, pets.id))
       .innerJoin(user, eq(books.ownerId, user.id))
-      .where(or(eq(books.status, "needs_human"), eq(books.status, "in_review")))
+      .where(and(isNull(books.deletedAt), or(eq(books.status, "needs_human"), eq(books.status, "in_review"))))
       // Oldest first: whoever has waited longest is reviewed first.
       .orderBy(books.updatedAt),
     listReviewsWhere(undefined, 50),

@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { Field } from "@/components/admin/field";
 import { formatBytes, formatDateTime, formatDay } from "@/components/admin/format";
+import { ModerationHistory } from "@/components/admin/moderation-history";
 import { PageHeader } from "@/components/admin/page-header";
 import { ReviewControls } from "@/components/admin/review-controls";
 import { BookView } from "@/components/book/book-view";
@@ -17,7 +18,7 @@ import { getBook } from "@/lib/admin/data";
 import { bookId } from "@/lib/admin/params";
 import { speciesLabel } from "@/lib/domain/species";
 
-export default function BookPage({ params }: PageProps<"/admin/books/[id]">) {
+export default function BookPage({ params, searchParams }: PageProps<"/admin/books/[id]">) {
   return (
     <>
       <div>
@@ -27,13 +28,13 @@ export default function BookPage({ params }: PageProps<"/admin/books/[id]">) {
         </Button>
       </div>
       <Suspense fallback={null}>
-        <BookDetail params={params} />
+        <BookDetail params={params} searchParams={searchParams} />
       </Suspense>
     </>
   );
 }
 
-async function BookDetail({ params }: Pick<PageProps<"/admin/books/[id]">, "params">) {
+async function BookDetail({ params, searchParams }: Pick<PageProps<"/admin/books/[id]">, "params" | "searchParams">) {
   const id = bookId.safeParse((await params).id);
   if (!id.success) notFound();
   const data = await getBook(id.data);
@@ -45,9 +46,12 @@ async function BookDetail({ params }: Pick<PageProps<"/admin/books/[id]">, "para
     <div className="flex flex-col gap-6">
       <PageHeader title={book.title} description={`/${book.slug}`}>
         <StatusBadge status={book.status} />
+        {book.deletedAt && <Badge variant="destructive">Deleted</Badge>}
       </PageHeader>
 
-      {(book.status === "needs_human" || book.status === "in_review") && <ReviewControls bookId={book.id} />}
+      {!book.deletedAt && (book.status === "needs_human" || book.status === "in_review") && <ReviewControls bookId={book.id} />}
+      {book.deletedAt && <p className="rounded-lg border p-4 text-sm text-muted-foreground">Deleted by the author on {formatDateTime(book.deletedAt)}. Retained for administrators; public, shared and author access is disabled.</p>}
+      <ModerationHistory bookId={book.id} searchParams={searchParams} />
       <section aria-label="Book preview" className="mx-auto w-full max-w-3xl"><BookView book={{ title: book.title, coverUrl: book.coverUrl, coverColor: book.coverColor, coverPattern: book.coverPattern,
         pet: { name: pet.name, species: speciesLabel(pet.species), city: pet.city, bornOn: pet.bornOn, adoptedOn: pet.adoptedOn, passedOn: pet.passedOn }, pages: data.pages }} /></section>
 

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Suspense } from "react";
 import { formatDate } from "@/components/admin/format";
+import { ModerationUsageCard } from "@/components/admin/moderation-usage";
 import { PageHeader } from "@/components/admin/page-header";
 import { StatusBadge, bookStatusLabel } from "@/components/admin/status-badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -26,15 +27,16 @@ async function Overview() {
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Stat label="Users" value={data.users} hint={`${data.admins} admin${data.admins === 1 ? "" : "s"}`} />
         <Stat label="New this week" value={data.newUsersThisWeek} hint="Sign-ups in the last 7 days" />
-        <Stat label="Books" value={data.books} hint={`${data.pets} pet${data.pets === 1 ? "" : "s"}`} />
+        <Stat label="Books" value={data.books} hint={`${data.pets} pets · ${data.deletedBooks} deleted books retained`} />
         <Stat
           label="Waiting for review"
-          value={data.statusCounts.needs_human}
+          value={data.statusCounts.needs_human + data.statusCounts.in_review}
           hint="Books sent to the admin queue"
           href="/admin/reviews"
         />
       </div>
 
+      <ModerationUsageCard usage={data.usage} />
       <Card>
         <CardHeader>
           <CardTitle>Books by status</CardTitle>

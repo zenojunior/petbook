@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Suspense } from "react";
 import { EmptyRow } from "@/components/admin/empty-row";
 import { formatDate } from "@/components/admin/format";
+import { formatUsd } from "@/components/admin/moderation-usage";
 import { PageHeader } from "@/components/admin/page-header";
 import { Pagination } from "@/components/admin/pagination";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -43,12 +44,13 @@ async function Users({ searchParams }: Pick<PageProps<"/admin/users">, "searchPa
               <TableHead>User</TableHead>
               <TableHead>Role</TableHead>
               <TableHead className="text-right">Books</TableHead>
+              <TableHead className="text-right">Known review cost</TableHead>
               <TableHead className="text-right">Joined</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {rows.length === 0 && (
-              <EmptyRow colSpan={4}>{q ? `No users match "${q}".` : "No users yet."}</EmptyRow>
+              <EmptyRow colSpan={5}>{q ? `No users match "${q}".` : "No users yet."}</EmptyRow>
             )}
             {rows.map((u) => (
               <TableRow key={u.id}>
@@ -73,6 +75,7 @@ async function Users({ searchParams }: Pick<PageProps<"/admin/users">, "searchPa
                   </div>
                 </TableCell>
                 <TableCell className="text-right tabular-nums">{u.bookCount}</TableCell>
+                <TableCell className="text-right tabular-nums">{formatUsd(u.estimatedCostUsd)}</TableCell>
                 <TableCell className="text-right text-muted-foreground">{formatDate(u.createdAt)}</TableCell>
               </TableRow>
             ))}

@@ -4,7 +4,7 @@ import { db } from "@/db";
 import { books } from "@/db/schema";
 import { getCurrentUser } from "@/lib/auth";
 import { readBookImage } from "@/lib/books/images";
-import { opensBySharedLink } from "@/lib/domain/book-access";
+import { canReadBookImages } from "@/lib/domain/book-access";
 
 // Serves a book photo. Photos of a published book are public. Any other book's photos are
 // visible to its owner and admins, and to whoever has the book's share link: the reader at
@@ -14,18 +14,17 @@ export async function GET(request: Request, { params }: RouteContext<"/api/image
   if (!z.uuid().safeParse(bookId).success) return notFound();
 
   const [book] = await db
-    .select({ status: books.status, ownerId: books.ownerId, shareToken: books.shareToken })
+    .select({ status: books.status, ownerId: books.ownerId, shareToken: books.shareToken, deletedAt: books.deletedAt })
     .from(books)
     .where(eq(books.id, bookId));
   if (!book) return notFound();
 
-  const isPublic = book.status === "published";
   const token = new URL(request.url).searchParams.get("k");
-  const hasSharedLink =
-    token !== null && book.shareToken === token && opensBySharedLink(book.status);
-  if (!isPublic && !hasSharedLink) {
+  // Active public/shared images need no session. A deleted book is admin-only,
+  // including when its former owner or someone with an old token requests an image.
+  if (!canReadBookImages(book, null, token)) {
     const user = await getCurrentUser();
-    if (!user || (user.id !== book.ownerId && user.role !== "admin")) return notFound();
+    if (!canReadBookImages(book, user, token)) return notFound();
   }
 
   const image = await readBookImage(bookId, file);
@@ -35,9 +34,8 @@ export async function GET(request: Request, { params }: RouteContext<"/api/image
     headers: {
       "Content-Type": "image/webp",
       "X-Content-Type-Options": "nosniff",
-      // A day, not forever: a book can be unpublished. Photos of a book that is not public
-      // must not end up in a shared cache.
-      "Cache-Control": isPublic ? "public, max-age=86400" : "private, max-age=3600",
+      // Recheck access on every request so deletion and unpublishing take effect immediately.
+      "Cache-Control": "private, no-store",
     },
   });
 }

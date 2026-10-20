@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { saveBook } from "@/app/(app)/dashboard/actions";
 import { StatusBadge } from "@/components/admin/status-badge";
+import { DeleteBookButton } from "@/components/book/delete-book-button";
 import { PublicationControls } from "@/components/book/publication-controls";
 import { BookView } from "@/components/book/book-view";
 import type { BookViewData, BookViewLayout } from "@/components/book/types";
@@ -217,6 +218,7 @@ export function BookEditor({
         <div className="flex flex-wrap items-center gap-3">
           {editable && <SaveIndicator state={saveState} error={error} />}
           <StatusBadge status={status} />
+          <DeleteBookButton bookId={bookId} />
           <ShareDialog
             bookId={bookId}
             slug={slug}

@@ -1,6 +1,6 @@
 // Data reads for the author's own books. Every read filters by the signed-in owner, so a
 // guessed book id from someone else returns nothing (drafts never leak).
-import { and, asc, count, desc, eq } from "drizzle-orm";
+import { and, asc, count, desc, eq, isNull } from "drizzle-orm";
 import { db } from "@/db";
 import { books, pages, pets, reviews } from "@/db/schema";
 import { requireUser } from "@/lib/auth";
@@ -22,7 +22,7 @@ export async function listMyBooks() {
     .from(books)
     .innerJoin(pets, eq(books.petId, pets.id))
     .leftJoin(pages, eq(pages.bookId, books.id))
-    .where(eq(books.ownerId, user.id))
+    .where(and(eq(books.ownerId, user.id), isNull(books.deletedAt)))
     .groupBy(books.id, pets.id)
     .orderBy(desc(books.updatedAt));
 }
@@ -33,7 +33,7 @@ export async function getMyBook(bookId: string) {
     .select({ book: books, pet: pets })
     .from(books)
     .innerJoin(pets, eq(books.petId, pets.id))
-    .where(and(eq(books.id, bookId), eq(books.ownerId, user.id)));
+    .where(and(eq(books.id, bookId), eq(books.ownerId, user.id), isNull(books.deletedAt)));
   if (!row) return null;
 
   const bookPages = await db

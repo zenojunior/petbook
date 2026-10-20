@@ -23,3 +23,15 @@ export function opensBySharedLink(status: BookStatus): boolean {
 export function opensByPublicLink(status: BookStatus): boolean {
   return status === "published";
 }
+
+
+export function canReadBookImages(
+  book: { status: BookStatus; ownerId: string; shareToken: string | null; deletedAt: Date | null },
+  viewer: { id: string; role: string } | null,
+  token: string | null,
+): boolean {
+  if (viewer?.role === "admin") return true;
+  if (book.deletedAt) return false;
+  if (viewer?.id === book.ownerId || opensByPublicLink(book.status)) return true;
+  return token !== null && token === book.shareToken && opensBySharedLink(book.status);
+}

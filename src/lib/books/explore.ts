@@ -1,5 +1,5 @@
 import "server-only";
-import { desc, eq } from "drizzle-orm";
+import { and, desc, eq, isNull } from "drizzle-orm";
 import { db } from "@/db";
 import { books, pets } from "@/db/schema";
 import { fuzzLocation } from "@/lib/domain/fuzz-location";
@@ -12,7 +12,7 @@ export async function listPublishedBooks() {
     coverColor: books.coverColor, coverPattern: books.coverPattern,
     petName: pets.name, species: pets.species, city: pets.city, lat: pets.lat, lng: pets.lng,
   }).from(books).innerJoin(pets, eq(books.petId, pets.id))
-    .where(eq(books.status, "published")).orderBy(desc(books.publishedAt));
+    .where(and(eq(books.status, "published"), isNull(books.deletedAt))).orderBy(desc(books.publishedAt));
   return rows.flatMap((row) => {
     if (row.lat === null || row.lng === null || !Number.isFinite(row.lat) || !Number.isFinite(row.lng) || Math.abs(row.lat) > 90 || Math.abs(row.lng) > 180) return [];
     return [{ ...row, ...fuzzLocation({ lat: row.lat, lng: row.lng }), species: toSpecies(row.species) }];

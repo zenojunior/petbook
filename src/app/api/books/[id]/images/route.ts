@@ -1,4 +1,4 @@
-import { and, eq } from "drizzle-orm";
+import { and, eq, isNull } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { db } from "@/db";
@@ -17,7 +17,7 @@ export async function POST(request: Request, { params }: RouteContext<"/api/book
   const [book] = await db
     .select({ id: books.id, status: books.status })
     .from(books)
-    .where(and(eq(books.id, id), eq(books.ownerId, user.id)));
+    .where(and(eq(books.id, id), eq(books.ownerId, user.id), isNull(books.deletedAt)));
   if (!book) return notFound();
   if (book.status !== "draft") {
     return NextResponse.json({ error: "Only drafts can be edited." }, { status: 409 });

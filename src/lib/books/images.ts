@@ -3,6 +3,9 @@
 // EXIF and GPS included, before it touches the disk.
 import { mkdir, readFile, rm, stat, writeFile } from "node:fs/promises";
 import path from "node:path";
+import { eq } from "drizzle-orm";
+import { db } from "@/db";
+import { moderationRuns } from "@/db/schema";
 import sharp from "sharp";
 import { bookImageUrl, IMAGE_MAX_EDGE, isImageFileName, unusedImages } from "@/lib/domain/book-images";
 import { bookUploadDir, listBookFiles } from "@/lib/uploads";
@@ -57,6 +60,10 @@ export async function deleteUnusedImages(bookId: string, usedUrls: (string | nul
       modifiedAt: (await stat(path.join(dir, file.name))).mtime,
     })),
   );
-  const unused = unusedImages(files, usedUrls, bookId, new Date(), UNUSED_GRACE_MS);
+  // A later edit must not erase the evidence of an earlier moderation call.
+  const snapshots = await db.select({ input: moderationRuns.inputSnapshot }).from(moderationRuns)
+    .where(eq(moderationRuns.bookId, bookId));
+  const auditedPhotos = snapshots.flatMap((row) => row.input?.images.map((image) => image.url) ?? []);
+  const unused = unusedImages(files, [...usedUrls, ...auditedPhotos], bookId, new Date(), UNUSED_GRACE_MS);
   await Promise.all(unused.map((name) => rm(path.join(dir, name), { force: true })));
 }
