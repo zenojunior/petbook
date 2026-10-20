@@ -7,6 +7,7 @@ import { books, pages, pets } from "@/db/schema";
 import { requireUser } from "@/lib/auth";
 import { deleteUnusedImages } from "@/lib/books/images";
 import { bookInput, newBookInput, type BookInput } from "@/lib/books/input";
+import { pickCoverColor } from "@/lib/domain/book-cover";
 import { isBookImageUrl } from "@/lib/domain/book-images";
 import { fuzzLocation } from "@/lib/domain/fuzz-location";
 import { makeSlug } from "@/lib/domain/make-slug";
@@ -29,13 +30,15 @@ export async function createBook(_prev: ActionResult | null, formData: FormData)
       .values({ ownerId: user.id, name: petName, species })
       .returning({ id: pets.id });
     const title = `The book of ${petName}`;
+    const suffix = crypto.randomUUID().slice(0, 8);
     const [book] = await tx
       .insert(books)
       .values({
         petId: pet.id,
         ownerId: user.id,
         title,
-        slug: makeSlug(title, crypto.randomUUID().slice(0, 8)),
+        slug: makeSlug(title, suffix),
+        coverColor: pickCoverColor(suffix),
       })
       .returning({ id: books.id });
     return book.id;
@@ -58,14 +61,17 @@ export async function saveBook(bookId: string, input: BookInput): Promise<Action
   if (!book) return { ok: false, error: "Book not found." };
   if (book.status !== "draft") return { ok: false, error: "Only drafts can be edited." };
 
-  const { title, coverUrl, pet, pages: newPages } = parsed.data;
+  const { title, coverUrl, coverColor, coverPattern, pet, pages: newPages } = parsed.data;
   const photos = [coverUrl, ...newPages.map((page) => page.imageUrl)];
   if (photos.some((url) => url !== null && !isBookImageUrl(url, book.id))) {
     return { ok: false, error: "A photo does not belong to this book." };
   }
 
   await db.transaction(async (tx) => {
-    await tx.update(books).set({ title, coverUrl }).where(eq(books.id, book.id));
+    await tx
+      .update(books)
+      .set({ title, coverUrl, coverColor, coverPattern })
+      .where(eq(books.id, book.id));
     const { location, ...petDetails } = pet;
     const place = location
       ? { city: location.city, ...fuzzLocation(location) }

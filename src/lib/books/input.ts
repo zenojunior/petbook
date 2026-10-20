@@ -1,6 +1,7 @@
 // Shapes the editor sends to the server. Parsed with zod in the actions, because
 // anything coming from the browser is untrusted input.
 import { z } from "zod";
+import { coverColors, coverPatterns } from "@/lib/domain/book-cover";
 
 const optionalText = (max: number) =>
   z
@@ -29,6 +30,8 @@ export const pageInput = z.object({
 export const bookInput = z.object({
   title: z.string().trim().min(1, "The book needs a title.").max(120),
   coverUrl: z.string().max(200).nullable(),
+  coverColor: z.enum(coverColors),
+  coverPattern: z.enum(coverPatterns),
   pet: z.object({
     name: z.string().trim().min(1, "Your pet needs a name.").max(80),
     species: z.string().trim().min(1, "Tell us what kind of animal they are.").max(60),

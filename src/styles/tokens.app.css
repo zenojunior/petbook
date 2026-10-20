@@ -34,3 +34,37 @@
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
 }
+
+/* Book covers: the closed palette from src/lib/domain/book-cover.ts. Each color sets the cover
+   (--cover) and the ink printed on it (--cover-ink), chosen for readable contrast. Used on any
+   element with data-cover, here and in the admin. */
+[data-cover="sage"] { --cover: oklch(0.8 0.06 145); --cover-ink: oklch(0.26 0.04 150); }
+[data-cover="sky"] { --cover: oklch(0.82 0.06 230); --cover-ink: oklch(0.27 0.05 240); }
+[data-cover="lavender"] { --cover: oklch(0.8 0.06 295); --cover-ink: oklch(0.28 0.06 295); }
+[data-cover="rose"] { --cover: oklch(0.82 0.07 10); --cover-ink: oklch(0.3 0.07 10); }
+[data-cover="peach"] { --cover: oklch(0.85 0.07 55); --cover-ink: oklch(0.32 0.06 45); }
+[data-cover="butter"] { --cover: oklch(0.9 0.09 95); --cover-ink: oklch(0.32 0.05 80); }
+[data-cover="terracotta"] { --cover: oklch(0.58 0.12 40); --cover-ink: oklch(0.96 0.02 70); }
+[data-cover="forest"] { --cover: oklch(0.42 0.06 155); --cover-ink: oklch(0.95 0.02 120); }
+[data-cover="navy"] { --cover: oklch(0.36 0.07 260); --cover-ink: oklch(0.95 0.015 90); }
+[data-cover="cocoa"] { --cover: oklch(0.4 0.04 55); --cover-ink: oklch(0.95 0.02 80); }
+
+/* Patterns are a mask over a layer painted in the cover's ink, so they work on every color. */
+[data-cover-pattern="stripes"] {
+  --cover-pattern: repeating-linear-gradient(-45deg, #000 0 2px, transparent 2px 12px);
+  --cover-pattern-size: auto;
+}
+[data-cover-pattern="dots"] {
+  --cover-pattern: radial-gradient(circle, #000 1.5px, transparent 2px);
+  --cover-pattern-size: 14px 14px;
+}
+[data-cover-pattern="check"] {
+  --cover-pattern:
+    linear-gradient(90deg, #000 0 50%, transparent 50%),
+    linear-gradient(#000 0 50%, transparent 50%);
+  --cover-pattern-size: 24px 24px;
+}
+[data-cover-pattern="paws"] {
+  --cover-pattern: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Cg transform='rotate(-18 14 14)'%3E%3Cellipse cx='14' cy='17' rx='5' ry='4'/%3E%3Ccircle cx='8.5' cy='10.5' r='1.9'/%3E%3Ccircle cx='12' cy='7.5' r='1.9'/%3E%3Ccircle cx='16' cy='7.5' r='1.9'/%3E%3Ccircle cx='19.5' cy='10.5' r='1.9'/%3E%3C/g%3E%3Cg transform='rotate(16 36 38)'%3E%3Cellipse cx='36' cy='41' rx='5' ry='4'/%3E%3Ccircle cx='30.5' cy='34.5' r='1.9'/%3E%3Ccircle cx='34' cy='31.5' r='1.9'/%3E%3Ccircle cx='38' cy='31.5' r='1.9'/%3E%3Ccircle cx='41.5' cy='34.5' r='1.9'/%3E%3C/g%3E%3C/svg%3E");
+  --cover-pattern-size: 56px 56px;
+}

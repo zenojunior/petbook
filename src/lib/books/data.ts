@@ -12,6 +12,8 @@ export async function listMyBooks() {
       id: books.id,
       title: books.title,
       status: books.status,
+      coverColor: books.coverColor,
+      coverPattern: books.coverPattern,
       updatedAt: books.updatedAt,
       petName: pets.name,
       species: pets.species,

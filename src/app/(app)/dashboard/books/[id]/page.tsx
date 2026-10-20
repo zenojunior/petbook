@@ -31,6 +31,8 @@ async function EditBook({ params }: { params: Promise<{ id: string }> }) {
       initial={{
         title: book.title,
         coverUrl: book.coverUrl,
+        coverColor: book.coverColor,
+        coverPattern: book.coverPattern,
         pet: {
           name: pet.name,
           species: pet.species,

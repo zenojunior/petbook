@@ -15,6 +15,13 @@
       "when": 1792520062985,
       "tag": "0001_amused_pixie",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1792520979707,
+      "tag": "0002_optimal_ogun",
+      "breakpoints": true
     }
   ]
 }

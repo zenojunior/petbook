@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { ImageIcon, PawPrint } from "lucide-react";
 import { petDatesLine } from "@/lib/domain/book-layout";
 import { cn } from "@/lib/utils";
+import { CoverSurface } from "./cover-surface";
 import type { BookViewData, BookViewPage } from "./types";
 
 // The faces of a book drawn by <BookView>: the cover, a page and "The end".
@@ -42,40 +43,45 @@ function Photo({ url, alt, className }: { url: string | null; alt: string; class
 export function CoverSide({ book }: { book: BookViewData }) {
   const { pet } = book;
   const dates = petDatesLine(pet);
+  const faded = "text-(--cover-ink)/70";
   return (
-    <Side className="items-center gap-[4cqw] bg-secondary/60 text-center">
-      <p className={label}>A Petbook</p>
-      <div className="min-h-0 w-4/5 flex-1 -rotate-2 rounded-xl bg-card p-[2.5cqw] shadow-sm">
-        {book.coverUrl ? (
-          // eslint-disable-next-line @next/next/no-img-element -- urls may be blob: previews or external hosts.
-          <img
-            src={book.coverUrl}
-            alt={pet.name || "Cover photo"}
-            className="size-full rounded-lg object-cover"
-          />
-        ) : (
-          <div className="flex size-full items-center justify-center rounded-lg bg-secondary text-muted-foreground/70">
-            <PawPrint className="size-[18cqw]" aria-hidden />
-          </div>
-        )}
-      </div>
-      <div className="w-full space-y-[1.5cqw]">
-        <h2
-          className={cn(
-            "line-clamp-3 font-heading text-[clamp(1.1rem,8cqw,2rem)] leading-tight break-words",
-            !book.title && "text-muted-foreground/60 italic",
+    <CoverSurface color={book.coverColor} pattern={book.coverPattern} className="size-full">
+      <Side className="items-center gap-[4cqw] text-center">
+        <p className={cn(label, faded)}>A Petbook</p>
+        <div className="min-h-0 w-4/5 flex-1 -rotate-2 rounded-xl bg-card p-[2.5cqw] shadow-md">
+          {book.coverUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element -- urls may be blob: previews or external hosts.
+            <img
+              src={book.coverUrl}
+              alt={pet.name || "Cover photo"}
+              className="size-full rounded-lg object-cover"
+            />
+          ) : (
+            <div className="flex size-full items-center justify-center rounded-lg bg-secondary text-muted-foreground/70">
+              <PawPrint className="size-[18cqw]" aria-hidden />
+            </div>
           )}
-        >
-          {book.title || "Untitled book"}
-        </h2>
-        <p className={cn(bodyText, "truncate text-muted-foreground")}>
-          {[pet.name || "Your pet", pet.species].filter(Boolean).join(" · ")}
-        </p>
-        {(dates || pet.city) && (
-          <p className={cn(label, "truncate")}>{[dates, pet.city].filter(Boolean).join(" · ")}</p>
-        )}
-      </div>
-    </Side>
+        </div>
+        <div className="w-full space-y-[1.5cqw]">
+          <h2
+            className={cn(
+              "line-clamp-3 font-heading text-[clamp(1.1rem,8cqw,2rem)] leading-tight break-words",
+              !book.title && "italic opacity-60",
+            )}
+          >
+            {book.title || "Untitled book"}
+          </h2>
+          <p className={cn(bodyText, faded, "truncate")}>
+            {[pet.name || "Your pet", pet.species].filter(Boolean).join(" · ")}
+          </p>
+          {(dates || pet.city) && (
+            <p className={cn(label, faded, "truncate")}>
+              {[dates, pet.city].filter(Boolean).join(" · ")}
+            </p>
+          )}
+        </div>
+      </Side>
+    </CoverSurface>
   );
 }
 

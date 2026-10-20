@@ -1,3 +1,5 @@
+import type { CoverColor, CoverPattern } from "@/lib/domain/book-cover";
+
 // What <BookView> needs to draw a book. Plain data, so the same component renders
 // the live preview in the editor (unsaved form state) and, later, the public reader.
 
@@ -24,6 +26,8 @@ export type BookViewPet = {
 export type BookViewData = {
   title: string;
   coverUrl: string | null;
+  coverColor: CoverColor;
+  coverPattern: CoverPattern;
   pet: BookViewPet;
   pages: BookViewPage[];
 };

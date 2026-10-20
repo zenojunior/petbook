@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Suspense } from "react";
 import { StatusBadge } from "@/components/admin/status-badge";
 import { formatDate } from "@/components/admin/format";
+import { CoverSurface } from "@/components/book/cover-surface";
 import { NewBookForm } from "@/components/book/new-book-form";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -64,7 +65,12 @@ async function Dashboard() {
               className="group block rounded-xl outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
             >
               <Card className="h-full transition-shadow group-hover:shadow-md">
-                <CardHeader>
+                <CardHeader className="grid-cols-[auto_minmax(0,1fr)] gap-x-4">
+                  <CoverSurface
+                    color={book.coverColor}
+                    pattern={book.coverPattern}
+                    className="row-span-2 h-16 w-12 rounded-r-md rounded-l-sm shadow-sm"
+                  />
                   <div className="flex items-start justify-between gap-3">
                     <CardTitle className="font-heading text-lg leading-snug">{book.title}</CardTitle>
                     <StatusBadge status={book.status} />

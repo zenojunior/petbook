@@ -14,6 +14,7 @@ import {
   timestamp,
   uuid,
 } from "drizzle-orm/pg-core";
+import { coverColors, coverPatterns } from "../lib/domain/book-cover";
 import { user } from "./auth-schema";
 
 export * from "./auth-schema";
@@ -25,6 +26,10 @@ export const bookStatus = pgEnum("book_status", [
   "rejected",
   "needs_human",
 ]);
+
+export const coverColor = pgEnum("cover_color", coverColors);
+
+export const coverPattern = pgEnum("cover_pattern", coverPatterns);
 
 export const pageLayout = pgEnum("page_layout", ["text", "photo", "photo+text"]);
 
@@ -77,6 +82,8 @@ export const books = pgTable(
     title: text("title").notNull(),
     slug: text("slug").notNull().unique(),
     coverUrl: text("cover_url"),
+    coverColor: coverColor("cover_color").default("sage").notNull(),
+    coverPattern: coverPattern("cover_pattern").default("paws").notNull(),
     status: bookStatus("status").default("draft").notNull(),
     publishedAt: timestamp("published_at"),
     ...timestamps,

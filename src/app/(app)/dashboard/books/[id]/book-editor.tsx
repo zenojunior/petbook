@@ -13,9 +13,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import type { BookInput } from "@/lib/books/input";
+import type { CoverColor, CoverPattern } from "@/lib/domain/book-cover";
 import { movePage } from "@/lib/domain/move-page";
 import { cn } from "@/lib/utils";
 import { LocationField, type PetLocation } from "./location-field";
+import { CoverPicker } from "./cover-picker";
 import { PhotoField } from "./photo-field";
 
 type BookStatus = "draft" | "in_review" | "published" | "rejected" | "needs_human";
@@ -31,6 +33,8 @@ type EditorPage = {
 export type EditorState = {
   title: string;
   coverUrl: string | null;
+  coverColor: CoverColor;
+  coverPattern: CoverPattern;
   pet: {
     name: string;
     species: string;
@@ -56,6 +60,8 @@ function toInput(state: EditorState): BookInput {
   return {
     title: state.title,
     coverUrl: state.coverUrl,
+    coverColor: state.coverColor,
+    coverPattern: state.coverPattern,
     pet: state.pet,
     pages: state.pages.map((page) => ({
       layout: page.layout,
@@ -70,6 +76,8 @@ function toPreview(state: EditorState): BookViewData {
   return {
     title: state.title,
     coverUrl: state.coverUrl,
+    coverColor: state.coverColor,
+    coverPattern: state.coverPattern,
     pet: {
       name: state.pet.name,
       species: state.pet.species,
@@ -212,6 +220,14 @@ export function BookEditor({
                   }}
                 />
               </div>
+              <CoverPicker
+                color={state.coverColor}
+                pattern={state.coverPattern}
+                onChange={({ color, pattern }) => {
+                  setState((s) => ({ ...s, coverColor: color, coverPattern: pattern }));
+                  setFocusPageIndex(undefined);
+                }}
+              />
               <div className="grid grid-cols-2 gap-4">
                 <Field id="petName" label="Pet's name">
                   <Input
