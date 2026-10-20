@@ -1,12 +1,12 @@
 import { BookOpen, Feather, Globe2, Heart, ImageOff, MapPinned, ShieldCheck, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { Suspense } from "react";
-import { BookPreview } from "@/components/landing/book-preview";
+import { FeaturedBook } from "@/components/landing/featured-book";
 import { MapPreview } from "@/components/landing/map-preview";
 import { Logo } from "@/components/logo";
 import { Button } from "@/components/ui/button";
+import { FeaturedBookSkeleton, MapSkeleton } from "@/components/skeletons";
 
-import { MapSkeleton } from "@/components/skeletons";
 // The dashboard asks for sign-in first and brings the author back afterwards.
 const WRITE_HREF = "/dashboard";
 const EXPLORE_HREF = "/explore";
@@ -27,7 +27,7 @@ export default function LandingPage() {
 
 function Hero() {
   return (
-    <section className="mx-auto grid w-full max-w-6xl items-center gap-12 px-4 pt-14 pb-20 sm:px-6 md:grid-cols-[1.1fr_1fr] md:pt-20">
+    <section className="mx-auto grid w-full max-w-6xl items-center gap-12 px-4 pt-14 pb-20 sm:px-6 md:grid-cols-[1fr_1fr] md:pt-20 lg:grid-cols-[0.9fr_1.3fr]">
       <div className="flex flex-col items-start gap-6">
         <p className="rounded-full border bg-card px-3 py-1 text-xs font-medium text-muted-foreground">
           Little books for the pets we love
@@ -58,7 +58,9 @@ function Hero() {
         </div>
         <p className="text-sm text-muted-foreground">Reading is free and needs no account.</p>
       </div>
-      <BookPreview />
+      <Suspense fallback={<FeaturedBookSkeleton />}>
+        <FeaturedBook />
+      </Suspense>
     </section>
   );
 }

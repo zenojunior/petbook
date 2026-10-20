@@ -128,3 +128,20 @@ export function DetailSkeleton() {
   );
 }
 
+
+// The landing page's book while it is chosen: same wash and size as the closed book, so the real
+// one takes its place without the layout moving.
+export function FeaturedBookSkeleton() {
+  return (
+    <div role="status" aria-busy="true" className="flex min-w-0 flex-col items-center gap-4 rounded-3xl bg-secondary/60 p-4 sm:p-8">
+      <span className="sr-only">Loading a book…</span>
+      <div className="flex w-full max-w-[40rem] items-center justify-center aspect-[3/4] sm:aspect-[3/2]">
+        <Skeleton className="h-full w-full rounded-2xl sm:w-1/2" />
+      </div>
+      <div className="flex h-5 w-full max-w-[40rem] items-center justify-between">
+        <Skeleton className="h-4 w-36" />
+        <Skeleton className="h-4 w-44" />
+      </div>
+    </div>
+  );
+}
