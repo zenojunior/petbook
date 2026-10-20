@@ -6,11 +6,13 @@ Write a small illustrated book about your pet and pin it on a world map.
 
 Works: Next.js (App Router) + shadcn/ui, PostgreSQL schema (users, pets, books, pages, reviews) with Drizzle migrations, Better Auth sign-in, admin area guarded on the server (`pnpm admin:grant <email>` gives the role).
 
-Also: the landing page (the map preview on it is illustrative) and a placeholder dashboard behind sign-in.
+Also: the landing page (the map preview on it is illustrative).
+
+Book editor: the dashboard lists your books and, when you have none, starts the first one from the pet's name and species. The editor saves the title, the pet's details and ordered pages (text, photo, photo + text) as you type, next to a live preview of the book (`<BookView>`, reusable by the public reader). Only drafts can be edited.
 
 Admin panel (read-only for now): overview with counts, users, books in any status, and the review queue with the reasons behind each decision.
 
-Not yet: book editor, real map, moderation, admin actions (approve/reject, ban).
+Not yet: photo upload (photo pages show an empty frame), choosing the pet's city, submitting for review, real map, moderation, admin actions (approve/reject, ban).
 
 ## Running locally
 
@@ -38,4 +40,6 @@ Migrations are not run by the container: apply them with `pnpm db:migrate` befor
 
 ## Next steps
 
-- Book editor, map, moderation.
+- Photo upload with EXIF stripping, then the cover photo.
+- Pick the pet's city and store it through `fuzzLocation()`.
+- Submit a draft for review, map, moderation.

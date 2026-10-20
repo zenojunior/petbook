@@ -73,7 +73,7 @@ async function Books({ searchParams }: Pick<PageProps<"/admin/books">, "searchPa
                     {b.ownerName}
                   </Link>
                 </TableCell>
-                <TableCell>{b.city}</TableCell>
+                <TableCell>{b.city ?? "—"}</TableCell>
                 <TableCell>
                   <StatusBadge status={b.status} />
                 </TableCell>

@@ -53,9 +53,10 @@ export const pets = pgTable(
     adoptedOn: date("adopted_on"),
     passedOn: date("passed_on"),
     // Only the city and coordinates rounded by fuzzLocation(). Never a precise address.
-    city: text("city").notNull(),
-    lat: doublePrecision("lat").notNull(),
-    lng: doublePrecision("lng").notNull(),
+    // Optional while the book is a draft; canPublish() requires them.
+    city: text("city"),
+    lat: doublePrecision("lat"),
+    lng: doublePrecision("lng"),
     ...timestamps,
   },
   (table) => [index("pets_owner_id_idx").on(table.ownerId)],

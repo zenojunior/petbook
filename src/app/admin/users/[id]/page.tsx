@@ -89,7 +89,7 @@ async function UserDetail({ params }: Pick<PageProps<"/admin/users/[id]">, "para
                     <span className="font-medium">{pet.name}</span>{" "}
                     <span className="text-muted-foreground">({pet.species})</span>
                   </TableCell>
-                  <TableCell>{pet.city}</TableCell>
+                  <TableCell>{pet.city ?? "—"}</TableCell>
                   <TableCell>
                     {pet.bookId && pet.bookStatus ? (
                       <Link href={`/admin/books/${pet.bookId}`} className="flex items-center gap-2 hover:underline">

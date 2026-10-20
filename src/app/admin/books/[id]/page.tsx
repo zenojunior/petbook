@@ -78,7 +78,16 @@ async function BookDetail({ params }: Pick<PageProps<"/admin/books/[id]">, "para
               <Field label="Adopted" value={formatDay(pet.adoptedOn)} />
               <Field label="Passed away" value={formatDay(pet.passedOn)} />
               {/* Already rounded by fuzzLocation() when it was stored. */}
-              <Field label="Location" value={`${pet.city} (${pet.lat.toFixed(2)}, ${pet.lng.toFixed(2)})`} />
+              <Field
+                label="Location"
+                value={
+                  pet.city === null
+                    ? "Not set"
+                    : pet.lat === null || pet.lng === null
+                      ? pet.city
+                      : `${pet.city} (${pet.lat.toFixed(2)}, ${pet.lng.toFixed(2)})`
+                }
+              />
             </dl>
           </CardContent>
         </Card>
