@@ -11,13 +11,14 @@ Petbook lets anyone write a small illustrated book about their pet (cat, dog, an
 
 ## Architecture
 
-A **single Next.js app** (a monolith, no Turborepo, no workspaces), deployed as one Vercel project. Do not split it into packages or services unless there is a concrete reason to.
+A **single Next.js app** (a monolith, no Turborepo, no workspaces), deployed as one container on a self-hosted VPS through Dokploy. Do not split it into packages or services unless there is a concrete reason to.
 
 - **Front end:** React (Next.js App Router) + **shadcn/ui** + Tailwind.
 - **API:** route handlers under `src/app/api/` and Server Actions, in the same app.
 - **Database:** PostgreSQL through `DATABASE_URL`, with **Drizzle ORM** (`drizzle-orm` + `drizzle-kit` for migrations).
 - **Auth:** Better Auth (Google sign-in) with the Drizzle adapter and the `admin` plugin for roles.
-- **Image storage:** Vercel Blob.
+- **Image storage:** not decided yet (an S3-compatible bucket or a volume on the VPS).
+- **Deploy:** Dokploy on a self-hosted VPS. Production env vars live in Dokploy, never in the repo.
 - **Map:** Leaflet + OpenStreetMap (`react-leaflet`), no API key.
 - **AI:** a vision-capable LLM through an OpenAI-compatible endpoint (9router), used for **moderation** only.
 
@@ -142,6 +143,6 @@ it("refuses to publish a book without a cover", () => {
 
 ## Scope
 
-- Keep `main` deployable: every push goes live on Vercel.
+- Keep `main` deployable: it is what Dokploy deploys.
 - Prefer finishing a smaller feature over half-building a bigger one. Ideas that did not make it go to the "Next steps" section of the README.
 - The README says what works, what is incomplete and how to run it locally.
