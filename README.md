@@ -14,7 +14,7 @@ Requirements: Node 24+ and pnpm.
 
 ```bash
 pnpm install
-cp .env.example .env   # then set DATABASE_URL and BETTER_AUTH_SECRET
+cp .env.example .env   # then set DATABASE_URL, BETTER_AUTH_SECRET and the Google OAuth client
 pnpm db:migrate
 pnpm dev               # http://localhost:3000
 ```

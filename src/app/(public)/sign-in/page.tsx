@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import { AuthForm } from "@/components/auth-form";
+import { GoogleSignInButton } from "@/components/google-sign-in-button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function SignInPage() {
@@ -8,12 +8,14 @@ export default function SignInPage() {
       <Card className="w-full max-w-sm">
         <CardHeader>
           <CardTitle>Sign in</CardTitle>
-          <CardDescription>Welcome back. Your books are waiting.</CardDescription>
+          <CardDescription>
+            Reading is open to everyone. Sign in to write a book about your pet.
+          </CardDescription>
         </CardHeader>
         <CardContent>
-          {/* AuthForm reads ?next= from the URL, which is request data. */}
+          {/* The button reads ?next= and ?error= from the URL, which is request data. */}
           <Suspense fallback={null}>
-            <AuthForm mode="sign-in" />
+            <GoogleSignInButton />
           </Suspense>
         </CardContent>
       </Card>

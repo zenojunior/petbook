@@ -16,7 +16,7 @@ A **single Next.js app** (a monolith, no Turborepo, no workspaces), deployed as 
 - **Front end:** React (Next.js App Router) + **shadcn/ui** + Tailwind.
 - **API:** route handlers under `src/app/api/` and Server Actions, in the same app.
 - **Database:** PostgreSQL through `DATABASE_URL`, with **Drizzle ORM** (`drizzle-orm` + `drizzle-kit` for migrations).
-- **Auth:** Better Auth (email/password) with the Drizzle adapter and the `admin` plugin for roles.
+- **Auth:** Better Auth (Google sign-in) with the Drizzle adapter and the `admin` plugin for roles.
 - **Image storage:** Vercel Blob.
 - **Map:** Leaflet + OpenStreetMap (`react-leaflet`), no API key.
 - **AI:** a vision-capable LLM through an OpenAI-compatible endpoint (9router), used for **moderation** only.

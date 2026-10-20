@@ -7,9 +7,21 @@ import { notFound, redirect } from "next/navigation";
 import { db } from "@/db";
 import * as schema from "@/db/schema";
 
+function requiredEnv(name: string): string {
+  const value = process.env[name];
+  if (!value) throw new Error(`${name} is not set. See .env.example.`);
+  return value;
+}
+
 export const auth = betterAuth({
   database: drizzleAdapter(db, { provider: "pg", schema }),
-  emailAndPassword: { enabled: true },
+  // Google is the only way in. The first sign-in creates the account.
+  socialProviders: {
+    google: {
+      clientId: requiredEnv("GOOGLE_CLIENT_ID"),
+      clientSecret: requiredEnv("GOOGLE_CLIENT_SECRET"),
+    },
+  },
   // nextCookies must be the last plugin so Server Actions can set the session cookie.
   plugins: [admin(), nextCookies()],
 });

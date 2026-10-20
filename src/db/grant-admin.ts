@@ -13,7 +13,7 @@ const rows = await sql`update "user" set role = 'admin' where email = ${email} r
 await sql.end();
 
 if (rows.length === 0) {
-  console.error(`No account with email ${email}. Sign up first.`);
+  console.error(`No account with email ${email}. Sign in with Google first.`);
   process.exit(1);
 }
 console.log(`${email} is now an admin.`);
