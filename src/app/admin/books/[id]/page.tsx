@@ -3,13 +3,14 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { Field } from "@/components/admin/field";
-import { formatDateTime, formatDay } from "@/components/admin/format";
+import { formatBytes, formatDateTime, formatDay } from "@/components/admin/format";
 import { PageHeader } from "@/components/admin/page-header";
 import { ReviewsTable } from "@/components/admin/reviews-table";
 import { StatusBadge } from "@/components/admin/status-badge";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { getBook } from "@/lib/admin/data";
 import { bookId } from "@/lib/admin/params";
 
@@ -35,6 +36,7 @@ async function BookDetail({ params }: Pick<PageProps<"/admin/books/[id]">, "para
   const data = await getBook(id.data);
   if (!data) notFound();
   const { book, pet, owner } = data;
+  const imageBytes = data.files.reduce((sum, f) => sum + f.bytes, 0);
 
   return (
     <div className="flex flex-col gap-6">
@@ -121,6 +123,39 @@ async function BookDetail({ params }: Pick<PageProps<"/admin/books/[id]">, "para
               </li>
             ))}
           </ol>
+        )}
+      </section>
+
+      <section className="flex flex-col gap-3">
+        <div className="flex flex-col gap-1">
+          <h2 className="font-heading text-lg font-medium">
+            Images ({data.files.length}, {formatBytes(imageBytes)})
+          </h2>
+          <p className="text-sm text-muted-foreground">
+            Files in this book&apos;s upload folder, <code className="font-mono">uploads/books/{book.id}/</code>.
+          </p>
+        </div>
+        {data.files.length === 0 ? (
+          <p className="text-sm text-muted-foreground">No images uploaded for this book.</p>
+        ) : (
+          <div className="rounded-xl border">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>File</TableHead>
+                  <TableHead className="text-right">Size</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {data.files.map((file) => (
+                  <TableRow key={file.name}>
+                    <TableCell className="font-mono">{file.name}</TableCell>
+                    <TableCell className="text-right tabular-nums">{formatBytes(file.bytes)}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
         )}
       </section>
 

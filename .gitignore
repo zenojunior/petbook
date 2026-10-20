@@ -43,3 +43,6 @@ next-env.d.ts
 
 # personal notes, never committed
 notes/
+
+# uploaded images (local disk storage, see src/lib/uploads.ts)
+/uploads/

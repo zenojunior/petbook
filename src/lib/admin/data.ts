@@ -5,6 +5,8 @@ import { and, count, desc, eq, gte, ilike, max, or, sql, type SQL } from "drizzl
 import { db } from "@/db";
 import { account, books, pages, pets, reviews, session, user } from "@/db/schema";
 import { requireAdmin } from "@/lib/auth";
+import { bookUsage, listBookFiles, totalUsage, UPLOAD_DIR } from "@/lib/uploads";
+import { describeSchema } from "./schema-diagram";
 
 export const PAGE_SIZE = 50;
 
@@ -118,12 +120,22 @@ export async function getUser(id: string) {
   ]);
   if (!profile) return null;
 
+  // Uploads are on disk, one folder per book, so a user's storage is the sum of their books'.
+  const petsWithUsage = await Promise.all(
+    userPets.map(async (pet) => ({ ...pet, usage: pet.bookId ? await bookUsage(pet.bookId) : null })),
+  );
+  const storage = petsWithUsage.reduce(
+    (sum, pet) => ({ files: sum.files + (pet.usage?.files ?? 0), bytes: sum.bytes + (pet.usage?.bytes ?? 0) }),
+    { files: 0, bytes: 0 },
+  );
+
   return {
     profile,
     providers: providers.map((p) => p.providerId),
     sessionCount: sessions?.total ?? 0,
     lastSeenAt: sessions?.lastSeenAt ?? null,
-    pets: userPets,
+    pets: petsWithUsage,
+    storage,
   };
 }
 
@@ -177,7 +189,7 @@ export async function listBooks({
 export async function getBook(id: string) {
   await requireAdmin();
 
-  const [[row], bookPages, bookReviews] = await Promise.all([
+  const [[row], bookPages, bookReviews, files] = await Promise.all([
     db
       .select({ book: books, pet: pets, owner: { id: user.id, name: user.name, email: user.email } })
       .from(books)
@@ -186,10 +198,11 @@ export async function getBook(id: string) {
       .where(eq(books.id, id)),
     db.select().from(pages).where(eq(pages.bookId, id)).orderBy(pages.position),
     listReviewsWhere(eq(reviews.bookId, id), 200),
+    listBookFiles(id),
   ]);
   if (!row) return null;
 
-  return { ...row, pages: bookPages, reviews: bookReviews };
+  return { ...row, pages: bookPages, reviews: bookReviews, files };
 }
 
 export async function getReviewQueue() {
@@ -221,6 +234,51 @@ export async function getReviewQueue() {
   ]);
 
   return { queue, recent };
+}
+
+export async function getDatabase() {
+  await requireAdmin();
+  const tables = describeSchema();
+
+  // Sizes come from Postgres itself: data, indexes and TOAST (long text and jsonb) together.
+  const sizeRows = await db.execute<{ name: string; total: string; data: string; indexes: string }>(sql`
+    select c.relname as name,
+      pg_total_relation_size(c.oid) as total,
+      pg_relation_size(c.oid) as data,
+      pg_indexes_size(c.oid) as indexes
+    from pg_class c
+    join pg_namespace n on n.oid = c.relnamespace
+    where n.nspname = 'public' and c.relkind = 'r'
+  `);
+  const sizes = new Map(sizeRows.map((r) => [r.name, r]));
+
+  const [[database], rowCounts, uploads] = await Promise.all([
+    db.execute<{ bytes: string }>(sql`select pg_database_size(current_database()) as bytes`),
+    // Exact counts are cheap at this size. Table names come from our own schema, never from input.
+    Promise.all(
+      tables.map(async (t) => {
+        const [r] = await db.execute<{ n: string }>(sql`select count(*) as n from ${sql.identifier(t.name)}`);
+        return [t.name, Number(r.n)] as const;
+      }),
+    ),
+    totalUsage(),
+  ]);
+  const counts = new Map(rowCounts);
+
+  return {
+    databaseBytes: Number(database.bytes),
+    uploads: { ...uploads, dir: UPLOAD_DIR },
+    tables: tables.map((t) => {
+      const size = sizes.get(t.name);
+      return {
+        ...t,
+        rows: counts.get(t.name) ?? 0,
+        totalBytes: Number(size?.total ?? 0),
+        dataBytes: Number(size?.data ?? 0),
+        indexBytes: Number(size?.indexes ?? 0),
+      };
+    }),
+  };
 }
 
 function listReviewsWhere(where: SQL | undefined, limit: number) {

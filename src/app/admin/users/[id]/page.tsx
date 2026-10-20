@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { EmptyRow } from "@/components/admin/empty-row";
 import { Field } from "@/components/admin/field";
-import { formatDate, formatDateTime } from "@/components/admin/format";
+import { formatBytes, formatDate, formatDateTime } from "@/components/admin/format";
 import { PageHeader } from "@/components/admin/page-header";
 import { StatusBadge } from "@/components/admin/status-badge";
 import { Badge } from "@/components/ui/badge";
@@ -57,6 +57,10 @@ async function UserDetail({ params }: Pick<PageProps<"/admin/users/[id]">, "para
             <Field label="Sessions" value={String(data.sessionCount)} />
             <Field label="Signs in with" value={data.providers.join(", ") || "—"} />
             <Field label="Email verified" value={profile.emailVerified ? "Yes" : "No"} />
+            <Field
+              label="Uploaded images"
+              value={`${data.storage.files} file${data.storage.files === 1 ? "" : "s"}, ${formatBytes(data.storage.bytes)}`}
+            />
             {profile.banned && (
               <Field
                 label="Ban"
@@ -78,11 +82,13 @@ async function UserDetail({ params }: Pick<PageProps<"/admin/users/[id]">, "para
                 <TableHead>Pet</TableHead>
                 <TableHead>City</TableHead>
                 <TableHead>Book</TableHead>
+                <TableHead className="text-right">Images</TableHead>
+                <TableHead className="text-right">Size</TableHead>
                 <TableHead className="text-right">Added</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {data.pets.length === 0 && <EmptyRow colSpan={4}>This user has not added a pet yet.</EmptyRow>}
+              {data.pets.length === 0 && <EmptyRow colSpan={6}>This user has not added a pet yet.</EmptyRow>}
               {data.pets.map((pet) => (
                 <TableRow key={pet.id}>
                   <TableCell>
@@ -100,6 +106,8 @@ async function UserDetail({ params }: Pick<PageProps<"/admin/users/[id]">, "para
                       <span className="text-muted-foreground">No book</span>
                     )}
                   </TableCell>
+                  <TableCell className="text-right tabular-nums">{pet.usage?.files ?? "—"}</TableCell>
+                  <TableCell className="text-right tabular-nums">{pet.usage ? formatBytes(pet.usage.bytes) : "—"}</TableCell>
                   <TableCell className="text-right text-muted-foreground">{formatDate(pet.createdAt)}</TableCell>
                 </TableRow>
               ))}

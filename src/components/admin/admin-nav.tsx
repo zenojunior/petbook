@@ -1,6 +1,6 @@
 "use client";
 
-import { BookOpen, ClipboardCheck, LayoutDashboard, Users } from "lucide-react";
+import { BookOpen, ClipboardCheck, Database, LayoutDashboard, Users } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "cn";
@@ -11,6 +11,7 @@ const items = [
   { href: "/admin/users", label: "Users", icon: Users },
   { href: "/admin/books", label: "Books", icon: BookOpen },
   { href: "/admin/reviews", label: "Review queue", icon: ClipboardCheck },
+  { href: "/admin/database", label: "Database", icon: Database },
 ] as const;
 
 export function AdminNav() {

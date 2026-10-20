@@ -37,6 +37,11 @@ COPY --from=builder --chown=node:node /app/.next/standalone ./
 COPY --from=builder --chown=node:node /app/.next/static ./.next/static
 COPY --from=builder --chown=node:node /app/public ./public
 
+# Uploaded images are written here (UPLOAD_DIR). Mount a Dokploy volume on /app/uploads so they
+# survive redeploys; the folder is created owned by node so the app can write to it.
+RUN mkdir -p /app/uploads && chown node:node /app/uploads
+ENV UPLOAD_DIR=/app/uploads
+
 # Run as the unprivileged user that ships with the Node image.
 USER node
 EXPOSE 3000

@@ -10,7 +10,7 @@ Also: the landing page (the map preview on it is illustrative).
 
 Book editor: the dashboard lists your books and, when you have none, starts the first one from the pet's name and species. The editor saves the title, the pet's details and ordered pages (text, photo, photo + text) as you type, next to a live preview of the book (`<BookView>`, reusable by the public reader). Only drafts can be edited.
 
-Admin panel (read-only for now): overview with counts, users, books in any status, and the review queue with the reasons behind each decision.
+Admin panel (read-only for now): overview with counts, users, books in any status, and the review queue with the reasons behind each decision. A Database page draws the schema (read from `src/db/schema.ts`) and shows the size of the database, of each table and of the uploaded images. User and book pages show how many images each book has and how much disk they use.
 
 Not yet: photo upload (photo pages show an empty frame), choosing the pet's city, submitting for review, real map, moderation, admin actions (approve/reject, ban).
 
@@ -30,6 +30,8 @@ Other scripts: `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm db:generate`, `
 ## Deploy (Docker / Dokploy)
 
 The `Dockerfile` is a multi-stage build that ships only the Next.js standalone server. No secrets are needed to build; set these env vars on the container: `DATABASE_URL`, `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL` (the public URL), `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`.
+
+Uploaded images are stored on disk, one folder per book: `<UPLOAD_DIR>/books/<book id>/`. The image sets `UPLOAD_DIR=/app/uploads`; mount a Dokploy volume there or the images are lost on every redeploy.
 
 ```bash
 docker build -t petbook .
