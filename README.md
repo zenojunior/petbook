@@ -6,7 +6,9 @@ Write a small illustrated book about your pet and pin it on a world map.
 
 Works: Next.js (App Router) + shadcn/ui, PostgreSQL schema (users, pets, books, pages, reviews) with Drizzle migrations, Better Auth sign-in, admin area guarded on the server (`pnpm admin:grant <email>` gives the role).
 
-Not yet: book editor, map, moderation.
+Also: the landing page (the map preview on it is illustrative) and a placeholder dashboard behind sign-in.
+
+Not yet: book editor, real map, moderation.
 
 ## Running locally
 

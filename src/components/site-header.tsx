@@ -7,13 +7,20 @@ import { getCurrentUser } from "@/lib/auth";
 
 export function SiteHeader() {
   return (
-    <header className="flex h-14 items-center justify-between border-b px-4">
-      <Link href="/">
-        <Logo />
-      </Link>
-      <Suspense fallback={null}>
-        <SessionArea />
-      </Suspense>
+    <header className="sticky top-0 z-40 border-b bg-background/85 backdrop-blur">
+      <div className="mx-auto flex h-14 w-full max-w-6xl items-center justify-between px-4 sm:px-6">
+        <Link href="/">
+          <Logo />
+        </Link>
+        <nav className="flex items-center gap-1">
+          <Button variant="ghost" nativeButton={false} render={<Link href="/#explore" />}>
+            Explore
+          </Button>
+          <Suspense fallback={null}>
+            <SessionArea />
+          </Suspense>
+        </nav>
+      </div>
     </header>
   );
 }

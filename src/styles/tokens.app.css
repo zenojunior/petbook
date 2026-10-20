@@ -1,29 +1,30 @@
-/* Design tokens for the public site and the author dashboard. */
+/* Design tokens for the public site and the author dashboard.
+   Paper background, ink text, and the yellow-green of the logo cat's eyes as the accent. */
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
+  --background: oklch(0.982 0.012 85);
+  --foreground: oklch(0.22 0.015 60);
+  --card: oklch(0.995 0.006 85);
+  --card-foreground: oklch(0.22 0.015 60);
+  --popover: oklch(0.995 0.006 85);
+  --popover-foreground: oklch(0.22 0.015 60);
+  --primary: oklch(0.24 0.018 60);
+  --primary-foreground: oklch(0.982 0.012 85);
+  --secondary: oklch(0.948 0.022 85);
+  --secondary-foreground: oklch(0.24 0.018 60);
+  --muted: oklch(0.948 0.022 85);
+  --muted-foreground: oklch(0.48 0.02 60);
+  --accent: oklch(0.87 0.12 106);
+  --accent-foreground: oklch(0.24 0.018 60);
   --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
+  --border: oklch(0.9 0.018 80);
+  --input: oklch(0.9 0.018 80);
+  --ring: oklch(0.72 0.12 106);
   --chart-1: oklch(0.87 0 0);
   --chart-2: oklch(0.556 0 0);
   --chart-3: oklch(0.439 0 0);
   --chart-4: oklch(0.371 0 0);
   --chart-5: oklch(0.269 0 0);
-  --radius: 0.625rem;
+  --radius: 0.75rem;
   --sidebar: oklch(0.985 0 0);
   --sidebar-foreground: oklch(0.145 0 0);
   --sidebar-primary: oklch(0.205 0 0);

@@ -33,6 +33,7 @@ export function UserMenu({ name, email, isAdmin }: Props) {
           <DropdownMenuLabel className="truncate">{email}</DropdownMenuLabel>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
+        <DropdownMenuItem render={<Link href="/dashboard" />}>My books</DropdownMenuItem>
         {/* Convenience only: /admin checks the role on the server. */}
         {isAdmin && <DropdownMenuItem render={<Link href="/admin" />}>Admin</DropdownMenuItem>}
         <DropdownMenuItem onClick={signOut}>Sign out</DropdownMenuItem>
