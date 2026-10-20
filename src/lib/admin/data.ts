@@ -227,7 +227,7 @@ export async function getReviewQueue() {
       .from(books)
       .innerJoin(pets, eq(books.petId, pets.id))
       .innerJoin(user, eq(books.ownerId, user.id))
-      .where(eq(books.status, "needs_human"))
+      .where(or(eq(books.status, "needs_human"), eq(books.status, "in_review")))
       // Oldest first: whoever has waited longest is reviewed first.
       .orderBy(books.updatedAt),
     listReviewsWhere(undefined, 50),

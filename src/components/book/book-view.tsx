@@ -38,12 +38,21 @@ export function BookView({
   book,
   focusPageIndex,
   className,
+  activeSide,
+  keyboardNavigation = "local",
+  onSideChange,
+  onSpreadChange,
 }: {
   book: BookViewData;
   // Index into book.pages of the page being edited; when it changes, the book turns to it.
   // undefined = the cover.
   focusPageIndex?: number;
   className?: string;
+  // Optional controlled navigation for the editor; readers retain local navigation.
+  activeSide?: number;
+  keyboardNavigation?: "local" | "document";
+  onSideChange?: (side: number) => void;
+  onSpreadChange?: (sides: number[]) => void;
 }) {
   const rootRef = useRef<HTMLDivElement>(null);
   // null until measured: the book stays hidden so it does not jump from one page to two.
@@ -59,16 +68,26 @@ export function BookView({
   // end) rather than spreads,
   // so the reader keeps their place when the layout switches between 1 and 2 pages.
   // `side` is where the book is going; `shownSide` is what lies flat while a leaf turns.
-  const [side, setSide] = useState(sideOfFocus(focusPageIndex));
+  const [localSide, setLocalSide] = useState(sideOfFocus(focusPageIndex));
+  const side = activeSide ?? localSide;
+  function setSide(nextSide: number) {
+    setLocalSide(nextSide);
+    onSideChange?.(nextSide);
+  }
   const [shownSide, setShownSide] = useState(side);
   const [lastFocus, setLastFocus] = useState(focusPageIndex);
   if (focusPageIndex !== lastFocus) {
     setLastFocus(focusPageIndex);
-    setSide(sideOfFocus(focusPageIndex));
+    setLocalSide(sideOfFocus(focusPageIndex));
   }
   if (reduceMotion && shownSide !== side) setShownSide(side);
 
   const spreadIndex = spreadIndexOfSide(spreads, side);
+  const visibleSidesKey = spreads[spreadIndex].join(",");
+  useEffect(() => {
+    onSpreadChange?.(visibleSidesKey.split(",").map(Number));
+  }, [visibleSidesKey, onSpreadChange]);
+
   const shownIndex = spreadIndexOfSide(spreads, shownSide);
   const turning = spreadIndex !== shownIndex;
   const forward = spreadIndex > shownIndex;
@@ -81,7 +100,10 @@ export function BookView({
   const back = () => canGoBack && turnTo(spreadIndex - 1);
   const next = () => canGoForward && turnTo(spreadIndex + 1);
 
-  function onKeyDown(event: KeyboardEvent<HTMLDivElement>) {
+  function onKeyDown(event: KeyboardEvent<HTMLDivElement> | globalThis.KeyboardEvent) {
+    if (event.defaultPrevented) return;
+    const element = event.target as HTMLElement;
+    if (element.closest("input, textarea, select, [contenteditable=true], [role=combobox], [role=radio], [role=dialog], [role=menu], [role=listbox]")) return;
     if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
     if (event.key === "ArrowLeft" && canGoBack) {
       event.preventDefault();
@@ -91,6 +113,12 @@ export function BookView({
       next();
     }
   }
+
+  useEffect(() => {
+    if (keyboardNavigation !== "document") return;
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  });
 
   // Like a real book: tap the right page to go on, the left one to go back. A closed book
   // (only a cover, or only the last page) turns the only way it can.
@@ -160,7 +188,7 @@ export function BookView({
       aria-roledescription="book"
       aria-label={title}
       tabIndex={0}
-      onKeyDown={onKeyDown}
+      onKeyDown={keyboardNavigation === "local" ? onKeyDown : undefined}
       className={cn(
         "flex w-full flex-col gap-4 rounded-2xl outline-none focus-visible:ring-3 focus-visible:ring-ring/50",
         className,

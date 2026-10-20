@@ -27,6 +27,8 @@ async function EditBook({ params }: { params: Promise<{ id: string }> }) {
   const { book, pet, pages } = data;
   return (
     <BookEditor
+      key={`${book.id}:${book.status}`}
+      reviewReasons={data.reviewReasons}
       bookId={book.id}
       slug={book.slug}
       status={book.status}

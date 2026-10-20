@@ -17,7 +17,7 @@ import type { Visibility } from "@/lib/domain/book-access";
 import { cn } from "@/lib/utils";
 
 // Who can read the book: only the author, anyone with the secret link, or everyone (published
-// after review). Publishing is not built yet, so "Public" is shown but cannot be chosen.
+// after review). Publication is requested with the editor's Submit for review button.
 export function ShareDialog({
   bookId,
   slug,
@@ -74,10 +74,10 @@ export function ShareDialog({
           <Option
             icon={<Globe />}
             title="Public on Petbook"
-            description="Everyone can find it on the map. A book goes through a quick review before it is public."
+            description="Everyone can find it on the map. Use Submit for review in the editor to make this book public after review."
             checked={visibility === "public"}
             disabled={!published}
-            badge={published ? undefined : "Soon"}
+            badge={published ? undefined : "Review required"}
             onSelect={() => {}}
           />
         </fieldset>

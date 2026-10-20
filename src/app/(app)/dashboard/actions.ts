@@ -55,41 +55,34 @@ export async function saveBook(bookId: string, input: BookInput): Promise<Action
   const parsed = bookInput.safeParse(input);
   if (!parsed.success) return { ok: false, error: parsed.error.issues[0].message };
 
-  const [book] = await db
-    .select({ id: books.id, petId: books.petId, status: books.status })
-    .from(books)
-    .where(and(eq(books.id, bookId), eq(books.ownerId, user.id)));
-  if (!book) return { ok: false, error: "Book not found." };
-  if (book.status !== "draft") return { ok: false, error: "Only drafts can be edited." };
+  return db.transaction(async (tx) => {
+    // Serialize with submission: a stale autosave must never modify reviewed content.
+    const [book] = await tx
+      .select({ id: books.id, petId: books.petId, status: books.status })
+      .from(books)
+      .where(and(eq(books.id, bookId), eq(books.ownerId, user.id)))
+      .for("update");
+    if (!book) return { ok: false, error: "Book not found." };
+    if (book.status !== "draft") return { ok: false, error: "Only drafts can be edited." };
 
-  const { title, coverUrl, coverColor, coverPattern, pet, pages: newPages } = parsed.data;
-  const photos = [coverUrl, ...newPages.map((page) => page.imageUrl)];
-  if (photos.some((url) => url !== null && !isBookImageUrl(url, book.id))) {
-    return { ok: false, error: "A photo does not belong to this book." };
-  }
-
-  await db.transaction(async (tx) => {
-    await tx
-      .update(books)
-      .set({ title, coverUrl, coverColor, coverPattern })
-      .where(eq(books.id, book.id));
+    const { title, coverUrl, coverColor, coverPattern, pet, pages: newPages } = parsed.data;
+    const photos = [coverUrl, ...newPages.map((page) => page.imageUrl)];
+    if (photos.some((url) => url !== null && !isBookImageUrl(url, book.id))) {
+      return { ok: false, error: "A photo does not belong to this book." };
+    }
+    await tx.update(books).set({ title, coverUrl, coverColor, coverPattern }).where(eq(books.id, book.id));
     const { location, ...petDetails } = pet;
     const place = location
       ? { city: location.city, ...fuzzLocation(location) }
       : { city: null, lat: null, lng: null };
     await tx.update(pets).set({ ...petDetails, ...place }).where(eq(pets.id, book.petId));
-    // Pages are replaced as a whole: the array order becomes the position.
     await tx.delete(pages).where(eq(pages.bookId, book.id));
     if (newPages.length > 0) {
-      await tx
-        .insert(pages)
-        .values(newPages.map((page, position) => ({ ...page, bookId: book.id, position })));
+      await tx.insert(pages).values(newPages.map((page, position) => ({ ...page, bookId: book.id, position })));
     }
+    await deleteUnusedImages(book.id, photos);
+    return { ok: true };
   });
-
-  // Replaced or removed photos are not needed anymore.
-  await deleteUnusedImages(book.id, photos);
-  return { ok: true };
 }
 
 export type ShareLinkResult = { ok: true; token: string | null } | { ok: false; error: string };

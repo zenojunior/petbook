@@ -12,7 +12,7 @@ export default function ReviewsPage() {
     <>
       <PageHeader
         title="Review queue"
-        description="Books the rules or the AI could not decide on. Oldest first."
+        description="Books awaiting a decision, including interrupted automatic reviews. Oldest first."
       />
       <Suspense fallback={null}>
         <Reviews />

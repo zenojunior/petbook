@@ -5,6 +5,8 @@ import { Suspense } from "react";
 import { Field } from "@/components/admin/field";
 import { formatBytes, formatDateTime, formatDay } from "@/components/admin/format";
 import { PageHeader } from "@/components/admin/page-header";
+import { ReviewControls } from "@/components/admin/review-controls";
+import { BookView } from "@/components/book/book-view";
 import { ReviewsTable } from "@/components/admin/reviews-table";
 import { StatusBadge } from "@/components/admin/status-badge";
 import { Badge } from "@/components/ui/badge";
@@ -44,6 +46,10 @@ async function BookDetail({ params }: Pick<PageProps<"/admin/books/[id]">, "para
       <PageHeader title={book.title} description={`/${book.slug}`}>
         <StatusBadge status={book.status} />
       </PageHeader>
+
+      {(book.status === "needs_human" || book.status === "in_review") && <ReviewControls bookId={book.id} />}
+      <section aria-label="Book preview" className="mx-auto w-full max-w-3xl"><BookView book={{ title: book.title, coverUrl: book.coverUrl, coverColor: book.coverColor, coverPattern: book.coverPattern,
+        pet: { name: pet.name, species: speciesLabel(pet.species), city: pet.city, bornOn: pet.bornOn, adoptedOn: pet.adoptedOn, passedOn: pet.passedOn }, pages: data.pages }} /></section>
 
       <div className="grid gap-4 lg:grid-cols-2">
         <Card>

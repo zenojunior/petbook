@@ -21,7 +21,7 @@ describe("publication rules", () => {
   it("accepts coordinates at zero", () => expect(canPublish({ ...complete, pet: { ...complete.pet, lat: 0, lng: 0 } }).ok).toBe(true));
   it("refuses non-finite coordinates", () => expect(canPublish({ ...complete, pet: { ...complete.pet, lat: NaN } }).ok).toBe(false));
   it("rejects foreign photos", () => expect(ruleCheck({ ...complete, coverUrl: "https://example.com/photo.webp" }).decision).toBe("reject"));
-  it("never auto-publishes without content moderation", () => expect(ruleCheck(complete).decision).toBe("needs_human"));
+  it("passes complete books to content moderation", () => expect(ruleCheck(complete).decision).toBe("approve"));
 });
 
 describe("book transitions", () => {

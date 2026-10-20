@@ -20,7 +20,7 @@ A **single Next.js app** (a monolith, no Turborepo, no workspaces), deployed as 
 - **Image storage:** not decided yet (an S3-compatible bucket or a volume on the VPS).
 - **Deploy:** Dokploy on a self-hosted VPS. Production env vars live in Dokploy, never in the repo.
 - **Map:** Leaflet + OpenStreetMap (`react-leaflet`), no API key.
-- **AI:** a vision-capable LLM through an OpenAI-compatible endpoint (9router), used for **moderation** only.
+- **AI:** OpenAI Decisions API (`POST /v1/decisions`, `gpt-6-luna`), used for **moderation** only. The server reads `OPENAI_API_KEY`; never expose it to the browser.
 
 ```
 src/
@@ -67,6 +67,8 @@ draft → in_review → published
                   → rejected      (back to the author, with reasons)
                   → needs_human   (admin queue)
 published → draft                 (unpublish)
+rejected → draft                  (revise)
+needs_human → published / rejected (admin decision)
 ```
 
 ## Rules that must never break

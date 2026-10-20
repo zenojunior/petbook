@@ -2,7 +2,7 @@
 // guessed book id from someone else returns nothing (drafts never leak).
 import { and, asc, count, desc, eq } from "drizzle-orm";
 import { db } from "@/db";
-import { books, pages, pets } from "@/db/schema";
+import { books, pages, pets, reviews } from "@/db/schema";
 import { requireUser } from "@/lib/auth";
 
 export async function listMyBooks() {
@@ -48,5 +48,7 @@ export async function getMyBook(bookId: string) {
     .where(eq(pages.bookId, bookId))
     .orderBy(asc(pages.position));
 
-  return { ...row, pages: bookPages };
+  const [latestReview] = await db.select({ reasons: reviews.reasons }).from(reviews)
+    .where(eq(reviews.bookId, bookId)).orderBy(desc(reviews.createdAt)).limit(1);
+  return { ...row, pages: bookPages, reviewReasons: latestReview?.reasons ?? [] };
 }
