@@ -10,11 +10,16 @@ import { canPublish } from "@/lib/domain/can-publish";
 import { transition } from "@/lib/domain/transition";
 import { moderateBook } from "@/lib/moderation/decisions";
 import { ruleCheck } from "@/lib/moderation/rule-check";
+import { checkRateLimit } from "@/lib/rate-limit";
 import type { ActionResult } from "./actions";
 
 export async function submitForReview(bookId: string): Promise<ActionResult> {
   const user = await requireUser(`/dashboard/books/${bookId}`);
   if (!z.uuid().safeParse(bookId).success) return { ok: false, error: "Invalid book." };
+  // Each submission can cost an LLM call, so cap how often one account can send books.
+  if (!checkRateLimit("submit", user.id).ok) {
+    return { ok: false, error: "You have submitted many books in a short time. Try again in an hour." };
+  }
   const submission = await db.transaction(async (tx) => {
     const [book] = await tx.select().from(books).where(and(eq(books.id, bookId), eq(books.ownerId, user.id), isNull(books.deletedAt))).for("update");
     if (!book || book.status !== "draft") return { ok: false as const, error: "Only your own drafts can be submitted." };
