@@ -3,6 +3,7 @@ import { Suspense } from "react";
 import { z } from "zod";
 import { BookNotAvailable, BookReader } from "@/components/book/book-reader";
 import { getSharedBook } from "@/lib/books/reader";
+import { ReaderSkeleton } from "@/components/skeletons";
 
 // A book opened through its secret share link. It may be a draft that was never reviewed, so
 // the page stays out of search engines and does not send the link to other sites.
@@ -17,7 +18,7 @@ const shareToken = z.string().regex(/^[A-Za-z0-9_-]{32}$/);
 
 export default function SharedBookPage({ params }: PageProps<"/s/[token]">) {
   return (
-    <Suspense fallback={null}>
+    <Suspense fallback={<ReaderSkeleton />}>
       <SharedBook params={params} />
     </Suspense>
   );

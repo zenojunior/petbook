@@ -5,12 +5,13 @@ import { SchemaDiagram } from "@/components/admin/schema-diagram";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableFooter, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { getDatabase } from "@/lib/admin/data";
+import { StatsSkeleton } from "@/components/skeletons";
 
 export default function DatabasePage() {
   return (
     <>
       <PageHeader title="Database" description="Every table, how they connect and how much space they use." />
-      <Suspense fallback={null}>
+      <Suspense fallback={<StatsSkeleton />}>
         <Database />
       </Suspense>
     </>

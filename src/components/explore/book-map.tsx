@@ -3,12 +3,13 @@
 import dynamic from "next/dynamic";
 import { useMemo, useState } from "react";
 import Link from "next/link";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Label } from "@/components/ui/label";
 import { NativeSelect, NativeSelectOption, NativeSelectOptGroup } from "@/components/ui/native-select";
 import { speciesGroups } from "@/lib/domain/species";
 import type { ExploreBook } from "@/lib/books/explore";
 
-const LeafletMap = dynamic(() => import("./leaflet-map"), { ssr: false, loading: () => <div className="flex h-full items-center justify-center text-sm text-muted-foreground" role="status">Loading map…</div> });
+const LeafletMap = dynamic(() => import("./leaflet-map"), { ssr: false, loading: () => <Skeleton className="h-full w-full rounded-none" role="status" aria-label="Loading map" /> });
 
 export function BookMap({ books, compact = false }: { books: ExploreBook[]; compact?: boolean }) {
   const [species, setSpecies] = useState("all");

@@ -5,6 +5,7 @@ import { NewBookForm } from "@/components/book/new-book-form";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { requireUser } from "@/lib/auth";
+import { FormCardSkeleton } from "@/components/skeletons";
 
 export default function NewBookPage() {
   return (
@@ -13,7 +14,7 @@ export default function NewBookPage() {
         <ArrowLeft data-icon="inline-start" />
         My books
       </Button>
-      <Suspense fallback={null}>
+      <Suspense fallback={<FormCardSkeleton />}>
         <NewBook />
       </Suspense>
     </main>

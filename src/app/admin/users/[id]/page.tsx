@@ -14,6 +14,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { getUser } from "@/lib/admin/data";
 import { speciesLabel } from "@/lib/domain/species";
+import { DetailSkeleton } from "@/components/skeletons";
 
 export default function UserPage({ params }: PageProps<"/admin/users/[id]">) {
   return (
@@ -24,7 +25,7 @@ export default function UserPage({ params }: PageProps<"/admin/users/[id]">) {
           All users
         </Button>
       </div>
-      <Suspense fallback={null}>
+      <Suspense fallback={<DetailSkeleton />}>
         <UserDetail params={params} />
       </Suspense>
     </>

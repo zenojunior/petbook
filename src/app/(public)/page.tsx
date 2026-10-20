@@ -6,6 +6,7 @@ import { MapPreview } from "@/components/landing/map-preview";
 import { Logo } from "@/components/logo";
 import { Button } from "@/components/ui/button";
 
+import { MapSkeleton } from "@/components/skeletons";
 // The dashboard asks for sign-in first and brings the author back afterwards.
 const WRITE_HREF = "/dashboard";
 const EXPLORE_HREF = "/explore";
@@ -146,7 +147,7 @@ function Explore() {
           </p>
         </div>
         <div className="min-w-0 space-y-4">
-          <Suspense fallback={<div className="flex h-[420px] items-center justify-center rounded-2xl border text-sm text-muted-foreground">Loading map…</div>}><MapPreview /></Suspense>
+          <Suspense fallback={<MapSkeleton className="h-[360px]" />}><MapPreview /></Suspense>
           <Button variant="outline" nativeButton={false} render={<Link href="/explore" />}>Explore all stories</Button>
         </div>
       </div>

@@ -17,6 +17,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { getBook } from "@/lib/admin/data";
 import { bookId } from "@/lib/admin/params";
 import { speciesLabel } from "@/lib/domain/species";
+import { DetailSkeleton } from "@/components/skeletons";
 
 export default function BookPage({ params, searchParams }: PageProps<"/admin/books/[id]">) {
   return (
@@ -27,7 +28,7 @@ export default function BookPage({ params, searchParams }: PageProps<"/admin/boo
           All books
         </Button>
       </div>
-      <Suspense fallback={null}>
+      <Suspense fallback={<DetailSkeleton />}>
         <BookDetail params={params} searchParams={searchParams} />
       </Suspense>
     </>

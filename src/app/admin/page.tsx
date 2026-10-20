@@ -6,12 +6,13 @@ import { PageHeader } from "@/components/admin/page-header";
 import { StatusBadge, bookStatusLabel } from "@/components/admin/status-badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { getOverview, BOOK_STATUSES } from "@/lib/admin/data";
+import { StatsSkeleton } from "@/components/skeletons";
 
 export default function AdminPage() {
   return (
     <>
       <PageHeader title="Overview" description="What is happening on Petbook right now." />
-      <Suspense fallback={null}>
+      <Suspense fallback={<StatsSkeleton />}>
         <Overview />
       </Suspense>
     </>

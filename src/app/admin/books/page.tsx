@@ -14,12 +14,13 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { BOOK_STATUSES, listBooks, PAGE_SIZE, type BookStatus } from "@/lib/admin/data";
 import { booksParams } from "@/lib/admin/params";
 import { speciesLabel } from "@/lib/domain/species";
+import { TableSkeleton } from "@/components/skeletons";
 
 export default function BooksPage({ searchParams }: PageProps<"/admin/books">) {
   return (
     <>
       <PageHeader title="Books" description="Every book in any status, drafts included. Most recently updated first." />
-      <Suspense fallback={null}>
+      <Suspense fallback={<TableSkeleton />}>
         <Books searchParams={searchParams} />
       </Suspense>
     </>

@@ -10,11 +10,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { requireUser } from "@/lib/auth";
 import { listMyBooks } from "@/lib/books/data";
 import { speciesLabel } from "@/lib/domain/species";
+import { BookCardsSkeleton } from "@/components/skeletons";
 
 export default function DashboardPage() {
   return (
     <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col px-4 py-12 sm:px-6">
-      <Suspense fallback={null}>
+      <Suspense fallback={<BookCardsSkeleton />}>
         <Dashboard />
       </Suspense>
     </main>

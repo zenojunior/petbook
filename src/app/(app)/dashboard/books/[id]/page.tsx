@@ -4,11 +4,12 @@ import { z } from "zod";
 import { getMyBook } from "@/lib/books/data";
 import { BookEditor } from "./book-editor";
 import { toSpecies } from "@/lib/domain/species";
+import { EditorSkeleton } from "@/components/skeletons";
 
 export default function EditBookPage({ params }: PageProps<"/dashboard/books/[id]">) {
   return (
     <main className="mx-auto flex w-full max-w-7xl flex-1 flex-col px-4 py-8 sm:px-6">
-      <Suspense fallback={null}>
+      <Suspense fallback={<EditorSkeleton />}>
         <EditBook params={params} />
       </Suspense>
     </main>

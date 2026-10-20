@@ -6,6 +6,7 @@ import { PageHeader } from "@/components/admin/page-header";
 import { Reasons, ReviewsTable } from "@/components/admin/reviews-table";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { getReviewQueue } from "@/lib/admin/data";
+import { TableSkeleton } from "@/components/skeletons";
 
 export default function ReviewsPage() {
   return (
@@ -14,7 +15,7 @@ export default function ReviewsPage() {
         title="Review queue"
         description="Books awaiting a decision, including interrupted automatic reviews. Oldest first."
       />
-      <Suspense fallback={null}>
+      <Suspense fallback={<TableSkeleton />}>
         <Reviews />
       </Suspense>
     </>

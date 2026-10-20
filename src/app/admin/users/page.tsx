@@ -12,12 +12,13 @@ import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { listUsers, PAGE_SIZE } from "@/lib/admin/data";
 import { usersParams } from "@/lib/admin/params";
+import { TableSkeleton } from "@/components/skeletons";
 
 export default function UsersPage({ searchParams }: PageProps<"/admin/users">) {
   return (
     <>
       <PageHeader title="Users" description="Everyone who has signed in, newest first." />
-      <Suspense fallback={null}>
+      <Suspense fallback={<TableSkeleton />}>
         <Users searchParams={searchParams} />
       </Suspense>
     </>

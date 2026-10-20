@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import { BookNotAvailable, BookReader } from "@/components/book/book-reader";
 import { getPublishedBook } from "@/lib/books/reader";
+import { ReaderSkeleton } from "@/components/skeletons";
 
 // A published book at its public address. Anything not published shows "not available".
 export async function generateMetadata({ params }: PageProps<"/b/[slug]">): Promise<Metadata> {
@@ -12,7 +13,7 @@ export async function generateMetadata({ params }: PageProps<"/b/[slug]">): Prom
 
 export default function PublicBookPage({ params }: PageProps<"/b/[slug]">) {
   return (
-    <Suspense fallback={null}>
+    <Suspense fallback={<ReaderSkeleton />}>
       <PublicBook params={params} />
     </Suspense>
   );

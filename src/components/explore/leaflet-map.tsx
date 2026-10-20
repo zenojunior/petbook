@@ -50,7 +50,7 @@ function BookPins({ books }: { books: ExploreBook[] }) {
 export default function LeafletMap({ books }: { books: ExploreBook[] }) {
   return (
     <MapContainer center={[15, 0]} zoom={2} minZoom={2} maxZoom={18} scrollWheelZoom={false} className="h-full w-full" worldCopyJump>
-      <TileLayer url="https://tile.openstreetmap.org/{z}/{x}/{y}.png" attribution={'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'} />
+      <TileLayer referrerPolicy="strict-origin-when-cross-origin" url="https://tile.openstreetmap.org/{z}/{x}/{y}.png" attribution={'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'} />
       <BookPins books={books} />
     </MapContainer>
   );
