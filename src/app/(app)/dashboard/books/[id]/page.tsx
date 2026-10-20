@@ -30,6 +30,7 @@ async function EditBook({ params }: { params: Promise<{ id: string }> }) {
       status={book.status}
       initial={{
         title: book.title,
+        coverUrl: book.coverUrl,
         pet: {
           name: pet.name,
           species: pet.species,
@@ -41,10 +42,10 @@ async function EditBook({ params }: { params: Promise<{ id: string }> }) {
           key: page.id,
           layout: page.layout,
           text: page.text ?? "",
+          imageUrl: page.imageUrl,
           caption: page.caption ?? "",
         })),
       }}
-      coverUrl={book.coverUrl}
       city={pet.city}
     />
   );

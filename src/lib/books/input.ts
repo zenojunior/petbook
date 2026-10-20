@@ -21,12 +21,14 @@ export const newBookInput = z.object({
 export const pageInput = z.object({
   layout: z.enum(["text", "photo", "photo+text"]),
   text: optionalText(4000),
-  imageUrl: z.null(),
+  // Checked against the book in saveBook(): it must be one of this book's own photos.
+  imageUrl: z.string().max(200).nullable(),
   caption: optionalText(200),
 });
 
 export const bookInput = z.object({
   title: z.string().trim().min(1, "The book needs a title.").max(120),
+  coverUrl: z.string().max(200).nullable(),
   pet: z.object({
     name: z.string().trim().min(1, "Your pet needs a name.").max(80),
     species: z.string().trim().min(1, "Tell us what kind of animal they are.").max(60),

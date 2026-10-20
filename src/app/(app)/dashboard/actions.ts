@@ -5,7 +5,9 @@ import { redirect } from "next/navigation";
 import { db } from "@/db";
 import { books, pages, pets } from "@/db/schema";
 import { requireUser } from "@/lib/auth";
+import { deleteUnusedImages } from "@/lib/books/images";
 import { bookInput, newBookInput, type BookInput } from "@/lib/books/input";
+import { isBookImageUrl } from "@/lib/domain/book-images";
 import { makeSlug } from "@/lib/domain/make-slug";
 
 export type ActionResult = { ok: true } | { ok: false; error: string };
@@ -55,9 +57,14 @@ export async function saveBook(bookId: string, input: BookInput): Promise<Action
   if (!book) return { ok: false, error: "Book not found." };
   if (book.status !== "draft") return { ok: false, error: "Only drafts can be edited." };
 
-  const { title, pet, pages: newPages } = parsed.data;
+  const { title, coverUrl, pet, pages: newPages } = parsed.data;
+  const photos = [coverUrl, ...newPages.map((page) => page.imageUrl)];
+  if (photos.some((url) => url !== null && !isBookImageUrl(url, book.id))) {
+    return { ok: false, error: "A photo does not belong to this book." };
+  }
+
   await db.transaction(async (tx) => {
-    await tx.update(books).set({ title }).where(eq(books.id, book.id));
+    await tx.update(books).set({ title, coverUrl }).where(eq(books.id, book.id));
     await tx.update(pets).set(pet).where(eq(pets.id, book.petId));
     // Pages are replaced as a whole: the array order becomes the position.
     await tx.delete(pages).where(eq(pages.bookId, book.id));
@@ -68,5 +75,7 @@ export async function saveBook(bookId: string, input: BookInput): Promise<Action
     }
   });
 
+  // Replaced or removed photos are not needed anymore.
+  await deleteUnusedImages(book.id, photos);
   return { ok: true };
 }

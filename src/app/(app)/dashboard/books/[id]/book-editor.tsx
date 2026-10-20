@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowDown, ArrowLeft, ArrowUp, ImageIcon, Plus, Trash2 } from "lucide-react";
+import { ArrowDown, ArrowLeft, ArrowUp, Plus, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { saveBook } from "@/app/(app)/dashboard/actions";
@@ -15,13 +15,21 @@ import { Textarea } from "@/components/ui/textarea";
 import type { BookInput } from "@/lib/books/input";
 import { movePage } from "@/lib/domain/move-page";
 import { cn } from "@/lib/utils";
+import { PhotoField } from "./photo-field";
 
 type BookStatus = "draft" | "in_review" | "published" | "rejected" | "needs_human";
 
-type EditorPage = { key: string; layout: BookViewLayout; text: string; caption: string };
+type EditorPage = {
+  key: string;
+  layout: BookViewLayout;
+  text: string;
+  imageUrl: string | null;
+  caption: string;
+};
 
 export type EditorState = {
   title: string;
+  coverUrl: string | null;
   pet: { name: string; species: string; bornOn: string; adoptedOn: string; passedOn: string };
   pages: EditorPage[];
 };
@@ -39,21 +47,21 @@ const layouts: { value: BookViewLayout; label: string }[] = [
 function toInput(state: EditorState): BookInput {
   return {
     title: state.title,
+    coverUrl: state.coverUrl,
     pet: state.pet,
     pages: state.pages.map((page) => ({
       layout: page.layout,
       text: page.layout === "photo" ? "" : page.text,
-      // Image storage is not decided yet, so pages are saved without a photo for now.
-      imageUrl: null,
+      imageUrl: page.layout === "text" ? null : page.imageUrl,
       caption: page.layout === "photo" ? page.caption : "",
     })),
   };
 }
 
-function toPreview(state: EditorState, coverUrl: string | null, city: string | null): BookViewData {
+function toPreview(state: EditorState, city: string | null): BookViewData {
   return {
     title: state.title,
-    coverUrl,
+    coverUrl: state.coverUrl,
     pet: {
       name: state.pet.name,
       species: state.pet.species,
@@ -66,7 +74,7 @@ function toPreview(state: EditorState, coverUrl: string | null, city: string | n
       id: page.key,
       layout: page.layout,
       text: page.layout === "photo" ? null : page.text || null,
-      imageUrl: null,
+      imageUrl: page.layout === "text" ? null : page.imageUrl,
       caption: page.layout === "photo" ? page.caption || null : null,
     })),
   };
@@ -76,13 +84,11 @@ export function BookEditor({
   bookId,
   status,
   initial,
-  coverUrl,
   city,
 }: {
   bookId: string;
   status: BookStatus;
   initial: EditorState;
-  coverUrl: string | null;
   city: string | null;
 }) {
   const editable = status === "draft";
@@ -94,7 +100,7 @@ export function BookEditor({
   // What the server has, to skip saving when nothing changed (e.g. right after a save).
   const savedJson = useRef(JSON.stringify(toInput(initial)));
 
-  const preview = useMemo(() => toPreview(state, coverUrl, city), [state, coverUrl, city]);
+  const preview = useMemo(() => toPreview(state, city), [state, city]);
 
   // Autosave: wait for a pause in typing, then send the whole book.
   useEffect(() => {
@@ -138,7 +144,7 @@ export function BookEditor({
   function addPage(layout: BookViewLayout) {
     setState((s) => ({
       ...s,
-      pages: [...s.pages, { key: crypto.randomUUID(), layout, text: "", caption: "" }],
+      pages: [...s.pages, { key: crypto.randomUUID(), layout, text: "", imageUrl: null, caption: "" }],
     }));
     setFocusPageIndex(state.pages.length);
   }
@@ -188,6 +194,18 @@ export function BookEditor({
                   onFocus={() => setFocusPageIndex(undefined)}
                 />
               </Field>
+              <div className="flex flex-col gap-2">
+                <Label>Cover photo</Label>
+                <PhotoField
+                  bookId={bookId}
+                  url={state.coverUrl}
+                  label="Cover photo"
+                  onChange={(coverUrl) => {
+                    setState((s) => ({ ...s, coverUrl }));
+                    setFocusPageIndex(undefined);
+                  }}
+                />
+              </div>
               <div className="grid grid-cols-2 gap-4">
                 <Field id="petName" label="Pet's name">
                   <Input
@@ -243,6 +261,7 @@ export function BookEditor({
               {state.pages.map((page, index) => (
                 <li key={page.key}>
                   <PageEditor
+                    bookId={bookId}
                     page={page}
                     index={index}
                     count={state.pages.length}
@@ -306,6 +325,7 @@ function SaveIndicator({ state, error }: { state: SaveState; error: string | nul
 }
 
 function PageEditor({
+  bookId,
   page,
   index,
   count,
@@ -315,6 +335,7 @@ function PageEditor({
   onMove,
   onRemove,
 }: {
+  bookId: string;
   page: EditorPage;
   index: number;
   count: number;
@@ -378,10 +399,12 @@ function PageEditor({
         </div>
         {hasPhoto && (
           <>
-            <div className="flex items-center gap-3 rounded-lg border border-dashed px-3 py-3 text-xs text-muted-foreground">
-              <ImageIcon className="size-4 shrink-0" />
-              Photo upload is coming soon. The book shows an empty frame for now.
-            </div>
+            <PhotoField
+              bookId={bookId}
+              url={page.imageUrl}
+              label={`Photo for page ${number}`}
+              onChange={(imageUrl) => onChange({ imageUrl })}
+            />
             {page.layout === "photo" && (
               <Input
                 aria-label={`Caption for page ${number}`}
