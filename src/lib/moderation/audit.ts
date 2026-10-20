@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export const MODERATION_MODEL = "gpt-6-luna";
-export const PROMPT_VERSION = "petbook-review-v1";
+export const PROMPT_VERSION = "petbook-review-v2";
 // Base Decisions input-token price, verified 2026-10-20. Each run stores its rate.
 export const DEFAULT_INPUT_USD_PER_MILLION = 0.10;
 
