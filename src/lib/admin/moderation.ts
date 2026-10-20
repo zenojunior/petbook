@@ -45,3 +45,10 @@ export async function getModerationHistory(bookId: string, page: number) {
   ]);
   return { runs, total: total.n, usage };
 }
+
+export async function getLatestModerationRun(bookId: string) {
+  await requireAdmin();
+  const [run] = await db.select().from(moderationRuns).where(eq(moderationRuns.bookId, bookId))
+    .orderBy(desc(moderationRuns.startedAt), desc(moderationRuns.id)).limit(1);
+  return run ?? null;
+}

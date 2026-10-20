@@ -4,7 +4,8 @@ import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { Field } from "@/components/admin/field";
 import { formatBytes, formatDateTime, formatDay } from "@/components/admin/format";
-import { ModerationHistory } from "@/components/admin/moderation-history";
+import { BookTabs } from "@/components/admin/book-tabs";
+import { ModerationHistory, ModerationVerdict } from "@/components/admin/moderation-history";
 import { PageHeader } from "@/components/admin/page-header";
 import { ReviewControls } from "@/components/admin/review-controls";
 import { BookView } from "@/components/book/book-view";
@@ -17,7 +18,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { getBook } from "@/lib/admin/data";
 import { bookId } from "@/lib/admin/params";
 import { speciesLabel } from "@/lib/domain/species";
-import { DetailSkeleton } from "@/components/skeletons";
+import { DetailSkeleton, TableSkeleton } from "@/components/skeletons";
 
 export default function BookPage({ params, searchParams }: PageProps<"/admin/books/[id]">) {
   return (
@@ -43,19 +44,35 @@ async function BookDetail({ params, searchParams }: Pick<PageProps<"/admin/books
   const { book, pet, owner } = data;
   const imageBytes = data.files.reduce((sum, f) => sum + f.bytes, 0);
 
-  return (
-    <div className="flex flex-col gap-6">
-      <PageHeader title={book.title} description={`/${book.slug}`}>
-        <StatusBadge status={book.status} />
-        {book.deletedAt && <Badge variant="destructive">Deleted</Badge>}
-      </PageHeader>
+  const reviewable = !book.deletedAt && (book.status === "needs_human" || book.status === "in_review");
+  const tab = (await searchParams).tab;
+  const initialTab = tab === "model" || tab === "data" ? tab : "review";
 
-      {!book.deletedAt && (book.status === "needs_human" || book.status === "in_review") && <ReviewControls bookId={book.id} />}
+  const reviewTab = (
+    <>
+      {reviewable && <ReviewControls bookId={book.id} />}
       {book.deletedAt && <p className="rounded-lg border p-4 text-sm text-muted-foreground">Deleted by the author on {formatDateTime(book.deletedAt)}. Retained for administrators; public, shared and author access is disabled.</p>}
-      <ModerationHistory bookId={book.id} searchParams={searchParams} />
+      <Suspense fallback={<TableSkeleton />}>
+        <ModerationVerdict bookId={book.id} />
+      </Suspense>
       <section aria-label="Book preview" className="mx-auto w-full max-w-3xl"><BookView book={{ title: book.title, coverUrl: book.coverUrl, coverColor: book.coverColor, coverPattern: book.coverPattern,
         pet: { name: pet.name, species: speciesLabel(pet.species), city: pet.city, bornOn: pet.bornOn, adoptedOn: pet.adoptedOn, passedOn: pet.passedOn }, pages: data.pages }} /></section>
 
+      <section className="flex flex-col gap-3">
+        <h2 className="font-heading text-lg font-medium">Decisions so far</h2>
+        <ReviewsTable reviews={data.reviews} showBook={false} />
+      </section>
+    </>
+  );
+
+  const modelTab = (
+    <Suspense fallback={<TableSkeleton />}>
+      <ModerationHistory bookId={book.id} searchParams={searchParams} />
+    </Suspense>
+  );
+
+  const dataTab = (
+    <>
       <div className="grid gap-4 lg:grid-cols-2">
         <Card>
           <CardHeader>
@@ -72,6 +89,7 @@ async function BookDetail({ params, searchParams }: Pick<PageProps<"/admin/books
                 }
               />
               <Field label="Author email" value={owner.email} />
+              <Field label="Address" value={`/b/${book.slug}`} />
               <Field label="Created" value={formatDateTime(book.createdAt)} />
               <Field label="Updated" value={formatDateTime(book.updatedAt)} />
               <Field label="Published" value={formatDateTime(book.publishedAt)} />
@@ -171,10 +189,23 @@ async function BookDetail({ params, searchParams }: Pick<PageProps<"/admin/books
         )}
       </section>
 
-      <section className="flex flex-col gap-3">
-        <h2 className="font-heading text-lg font-medium">Review history</h2>
-        <ReviewsTable reviews={data.reviews} showBook={false} />
-      </section>
+    </>
+  );
+
+  return (
+    <div className="flex flex-col gap-6">
+      <PageHeader title={book.title} description={`By ${owner.name} · ${pet.name}, ${speciesLabel(pet.species).toLowerCase()}${pet.city ? ` · ${pet.city}` : ""}`}>
+        <StatusBadge status={book.status} />
+        {book.deletedAt && <Badge variant="destructive">Deleted</Badge>}
+      </PageHeader>
+      <BookTabs
+        initial={initialTab}
+        tabs={[
+          { value: "review", label: "Review", content: reviewTab },
+          { value: "model", label: "Model and costs", content: modelTab },
+          { value: "data", label: "Book data", content: dataTab },
+        ]}
+      />
     </div>
   );
 }
