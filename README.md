@@ -10,9 +10,11 @@ Also: the landing page (the map preview on it is illustrative).
 
 Book editor: the dashboard lists your books and, when you have none, starts the first one from the pet's name and species. The editor saves the title, the pet's details and ordered pages (text, photo, photo + text) as you type, next to a live preview of the book (`<BookView>`, reusable by the public reader). Only drafts can be edited.
 
+Photos: a cover photo and one photo per page. The browser shrinks them before uploading, and the server re-encodes every photo with sharp (max 1600px, WebP, no EXIF or GPS) into `UPLOAD_DIR/books/<book id>/`. Photos of a book that is not published are served only to its owner and admins. The pet's city is picked from an OpenStreetMap (Nominatim) city search; only the city name is kept and the coordinates are rounded by `fuzzLocation()`.
+
 Admin panel (read-only for now): overview with counts, users, books in any status, and the review queue with the reasons behind each decision. A Database page draws the schema (read from `src/db/schema.ts`) and shows the size of the database, of each table and of the uploaded images. User and book pages show how many images each book has and how much disk they use.
 
-Not yet: photo upload (photo pages show an empty frame), choosing the pet's city, submitting for review, real map, moderation, admin actions (approve/reject, ban).
+Not yet: submitting for review, real map, moderation, admin actions (approve/reject, ban).
 
 ## Running locally
 
@@ -42,6 +44,6 @@ Migrations are not run by the container: apply them with `pnpm db:migrate` befor
 
 ## Next steps
 
-- Photo upload with EXIF stripping, then the cover photo.
-- Pick the pet's city and store it through `fuzzLocation()`.
-- Submit a draft for review, map, moderation.
+- Submit a draft for review: `canPublish()`, `transition()`, rule checks, then the AI moderator.
+- Public reader page and the real map (Leaflet) with the published books.
+- In the editor on phones, a toggle between the form and the preview.

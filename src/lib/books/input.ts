@@ -35,6 +35,14 @@ export const bookInput = z.object({
     bornOn: optionalDate,
     adoptedOn: optionalDate,
     passedOn: optionalDate,
+    // Only a city. The server rounds the coordinates with fuzzLocation() before storing them.
+    location: z
+      .object({
+        city: z.string().trim().min(1).max(120),
+        lat: z.number().min(-90).max(90),
+        lng: z.number().min(-180).max(180),
+      })
+      .nullable(),
   }),
   pages: z.array(pageInput).max(100),
 });

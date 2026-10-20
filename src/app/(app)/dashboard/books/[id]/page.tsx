@@ -37,6 +37,10 @@ async function EditBook({ params }: { params: Promise<{ id: string }> }) {
           bornOn: pet.bornOn ?? "",
           adoptedOn: pet.adoptedOn ?? "",
           passedOn: pet.passedOn ?? "",
+          location:
+            pet.city !== null && pet.lat !== null && pet.lng !== null
+              ? { city: pet.city, lat: pet.lat, lng: pet.lng }
+              : null,
         },
         pages: pages.map((page) => ({
           key: page.id,
@@ -46,7 +50,6 @@ async function EditBook({ params }: { params: Promise<{ id: string }> }) {
           caption: page.caption ?? "",
         })),
       }}
-      city={pet.city}
     />
   );
 }

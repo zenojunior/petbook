@@ -15,6 +15,7 @@ import { Textarea } from "@/components/ui/textarea";
 import type { BookInput } from "@/lib/books/input";
 import { movePage } from "@/lib/domain/move-page";
 import { cn } from "@/lib/utils";
+import { LocationField, type PetLocation } from "./location-field";
 import { PhotoField } from "./photo-field";
 
 type BookStatus = "draft" | "in_review" | "published" | "rejected" | "needs_human";
@@ -30,7 +31,14 @@ type EditorPage = {
 export type EditorState = {
   title: string;
   coverUrl: string | null;
-  pet: { name: string; species: string; bornOn: string; adoptedOn: string; passedOn: string };
+  pet: {
+    name: string;
+    species: string;
+    bornOn: string;
+    adoptedOn: string;
+    passedOn: string;
+    location: PetLocation | null;
+  };
   pages: EditorPage[];
 };
 
@@ -58,7 +66,7 @@ function toInput(state: EditorState): BookInput {
   };
 }
 
-function toPreview(state: EditorState, city: string | null): BookViewData {
+function toPreview(state: EditorState): BookViewData {
   return {
     title: state.title,
     coverUrl: state.coverUrl,
@@ -68,7 +76,7 @@ function toPreview(state: EditorState, city: string | null): BookViewData {
       bornOn: state.pet.bornOn || null,
       adoptedOn: state.pet.adoptedOn || null,
       passedOn: state.pet.passedOn || null,
-      city,
+      city: state.pet.location?.city ?? null,
     },
     pages: state.pages.map((page) => ({
       id: page.key,
@@ -84,12 +92,10 @@ export function BookEditor({
   bookId,
   status,
   initial,
-  city,
 }: {
   bookId: string;
   status: BookStatus;
   initial: EditorState;
-  city: string | null;
 }) {
   const editable = status === "draft";
   const [state, setState] = useState(initial);
@@ -100,7 +106,7 @@ export function BookEditor({
   // What the server has, to skip saving when nothing changed (e.g. right after a save).
   const savedJson = useRef(JSON.stringify(toInput(initial)));
 
-  const preview = useMemo(() => toPreview(state, city), [state, city]);
+  const preview = useMemo(() => toPreview(state), [state]);
 
   // Autosave: wait for a pause in typing, then send the whole book.
   useEffect(() => {
@@ -133,7 +139,7 @@ export function BookEditor({
     return () => window.removeEventListener("beforeunload", onBeforeUnload);
   }, [saveState]);
 
-  function setPet(field: keyof EditorState["pet"], value: string) {
+  function setPet(field: Exclude<keyof EditorState["pet"], "location">, value: string) {
     setState((s) => ({ ...s, pet: { ...s.pet, [field]: value } }));
   }
 
@@ -244,6 +250,16 @@ export function BookEditor({
                     />
                   </Field>
                 ))}
+              </div>
+              <div className="flex flex-col gap-2">
+                <Label htmlFor="city">Where they lived</Label>
+                <LocationField
+                  value={state.pet.location}
+                  onChange={(location) => {
+                    setState((s) => ({ ...s, pet: { ...s.pet, location } }));
+                    setFocusPageIndex(undefined);
+                  }}
+                />
               </div>
             </CardContent>
           </Card>

@@ -8,6 +8,7 @@ import { requireUser } from "@/lib/auth";
 import { deleteUnusedImages } from "@/lib/books/images";
 import { bookInput, newBookInput, type BookInput } from "@/lib/books/input";
 import { isBookImageUrl } from "@/lib/domain/book-images";
+import { fuzzLocation } from "@/lib/domain/fuzz-location";
 import { makeSlug } from "@/lib/domain/make-slug";
 
 export type ActionResult = { ok: true } | { ok: false; error: string };
@@ -65,7 +66,11 @@ export async function saveBook(bookId: string, input: BookInput): Promise<Action
 
   await db.transaction(async (tx) => {
     await tx.update(books).set({ title, coverUrl }).where(eq(books.id, book.id));
-    await tx.update(pets).set(pet).where(eq(pets.id, book.petId));
+    const { location, ...petDetails } = pet;
+    const place = location
+      ? { city: location.city, ...fuzzLocation(location) }
+      : { city: null, lat: null, lng: null };
+    await tx.update(pets).set({ ...petDetails, ...place }).where(eq(pets.id, book.petId));
     // Pages are replaced as a whole: the array order becomes the position.
     await tx.delete(pages).where(eq(pages.bookId, book.id));
     if (newPages.length > 0) {
