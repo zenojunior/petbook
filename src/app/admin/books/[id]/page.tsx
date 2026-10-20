@@ -13,6 +13,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { getBook } from "@/lib/admin/data";
 import { bookId } from "@/lib/admin/params";
+import { speciesLabel } from "@/lib/domain/species";
 
 export default function BookPage({ params }: PageProps<"/admin/books/[id]">) {
   return (
@@ -75,7 +76,7 @@ async function BookDetail({ params }: Pick<PageProps<"/admin/books/[id]">, "para
           <CardContent>
             <dl className="grid gap-x-8 gap-y-3 sm:grid-cols-2">
               <Field label="Name" value={pet.name} />
-              <Field label="Species" value={pet.species} />
+              <Field label="Species" value={speciesLabel(pet.species)} />
               <Field label="Born" value={formatDay(pet.bornOn)} />
               <Field label="Adopted" value={formatDay(pet.adoptedOn)} />
               <Field label="Passed away" value={formatDay(pet.passedOn)} />

@@ -3,6 +3,7 @@ import { Suspense } from "react";
 import { z } from "zod";
 import { getMyBook } from "@/lib/books/data";
 import { BookEditor } from "./book-editor";
+import { toSpecies } from "@/lib/domain/species";
 
 export default function EditBookPage({ params }: PageProps<"/dashboard/books/[id]">) {
   return (
@@ -27,7 +28,9 @@ async function EditBook({ params }: { params: Promise<{ id: string }> }) {
   return (
     <BookEditor
       bookId={book.id}
+      slug={book.slug}
       status={book.status}
+      shareToken={book.shareToken}
       initial={{
         title: book.title,
         coverUrl: book.coverUrl,
@@ -35,7 +38,7 @@ async function EditBook({ params }: { params: Promise<{ id: string }> }) {
         coverPattern: book.coverPattern,
         pet: {
           name: pet.name,
-          species: pet.species,
+          species: toSpecies(pet.species),
           bornOn: pet.bornOn ?? "",
           adoptedOn: pet.adoptedOn ?? "",
           passedOn: pet.passedOn ?? "",

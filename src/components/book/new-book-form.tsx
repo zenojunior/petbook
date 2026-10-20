@@ -3,6 +3,7 @@
 import { ArrowRight } from "lucide-react";
 import { useActionState } from "react";
 import { createBook } from "@/app/(app)/dashboard/actions";
+import { SpeciesSelect } from "@/components/book/species-select";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -20,7 +21,7 @@ export function NewBookForm() {
         </div>
         <div className="flex flex-col gap-2">
           <Label htmlFor="species">What kind of animal?</Label>
-          <Input id="species" name="species" placeholder="Dog, cat, rabbit…" required maxLength={60} />
+          <SpeciesSelect id="species" name="species" defaultValue="" required />
         </div>
       </div>
       {state && !state.ok && (

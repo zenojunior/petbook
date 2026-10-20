@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { requireUser } from "@/lib/auth";
 import { listMyBooks } from "@/lib/books/data";
+import { speciesLabel } from "@/lib/domain/species";
 
 export default function DashboardPage() {
   return (
@@ -76,7 +77,7 @@ async function Dashboard() {
                     <StatusBadge status={book.status} />
                   </div>
                   <CardDescription>
-                    {book.petName} · {book.species}
+                    {book.petName} · {speciesLabel(book.species)}
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="flex items-center gap-2 text-xs text-muted-foreground">

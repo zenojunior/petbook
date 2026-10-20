@@ -85,6 +85,9 @@ export const books = pgTable(
     coverColor: coverColor("cover_color").default("sage").notNull(),
     coverPattern: coverPattern("cover_pattern").default("paws").notNull(),
     status: bookStatus("status").default("draft").notNull(),
+    // Secret for the "anyone with the link" share URL (/s/<token>). Null = link sharing is off.
+    // Resetting it gives a new token, so old links stop working.
+    shareToken: text("share_token").unique(),
     publishedAt: timestamp("published_at"),
     ...timestamps,
   },

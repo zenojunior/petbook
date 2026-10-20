@@ -7,6 +7,7 @@ import { saveBook } from "@/app/(app)/dashboard/actions";
 import { StatusBadge } from "@/components/admin/status-badge";
 import { BookView } from "@/components/book/book-view";
 import type { BookViewData, BookViewLayout } from "@/components/book/types";
+import { SpeciesSelect } from "@/components/book/species-select";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -15,10 +16,12 @@ import { Textarea } from "@/components/ui/textarea";
 import type { BookInput } from "@/lib/books/input";
 import type { CoverColor, CoverPattern } from "@/lib/domain/book-cover";
 import { movePage } from "@/lib/domain/move-page";
+import { speciesLabel, toSpecies, type Species } from "@/lib/domain/species";
 import { cn } from "@/lib/utils";
 import { LocationField, type PetLocation } from "./location-field";
 import { CoverPicker } from "./cover-picker";
 import { PhotoField } from "./photo-field";
+import { ShareDialog } from "./share-dialog";
 
 type BookStatus = "draft" | "in_review" | "published" | "rejected" | "needs_human";
 
@@ -37,7 +40,7 @@ export type EditorState = {
   coverPattern: CoverPattern;
   pet: {
     name: string;
-    species: string;
+    species: Species;
     bornOn: string;
     adoptedOn: string;
     passedOn: string;
@@ -80,7 +83,7 @@ function toPreview(state: EditorState): BookViewData {
     coverPattern: state.coverPattern,
     pet: {
       name: state.pet.name,
-      species: state.pet.species,
+      species: speciesLabel(state.pet.species),
       bornOn: state.pet.bornOn || null,
       adoptedOn: state.pet.adoptedOn || null,
       passedOn: state.pet.passedOn || null,
@@ -98,11 +101,15 @@ function toPreview(state: EditorState): BookViewData {
 
 export function BookEditor({
   bookId,
+  slug,
   status,
+  shareToken,
   initial,
 }: {
   bookId: string;
+  slug: string;
   status: BookStatus;
+  shareToken: string | null;
   initial: EditorState;
 }) {
   const editable = status === "draft";
@@ -147,7 +154,7 @@ export function BookEditor({
     return () => window.removeEventListener("beforeunload", onBeforeUnload);
   }, [saveState]);
 
-  function setPet(field: Exclude<keyof EditorState["pet"], "location">, value: string) {
+  function setPet(field: Exclude<keyof EditorState["pet"], "location" | "species">, value: string) {
     setState((s) => ({ ...s, pet: { ...s.pet, [field]: value } }));
   }
 
@@ -183,6 +190,12 @@ export function BookEditor({
         <div className="flex items-center gap-3">
           {editable && <SaveIndicator state={saveState} error={error} />}
           <StatusBadge status={status} />
+          <ShareDialog
+            bookId={bookId}
+            slug={slug}
+            published={status === "published"}
+            initialToken={shareToken}
+          />
         </div>
       </div>
 
@@ -239,11 +252,12 @@ export function BookEditor({
                   />
                 </Field>
                 <Field id="species" label="Species">
-                  <Input
+                  <SpeciesSelect
                     id="species"
                     value={state.pet.species}
-                    maxLength={60}
-                    onChange={(e) => setPet("species", e.target.value)}
+                    onChange={(e) =>
+                      setState((s) => ({ ...s, pet: { ...s.pet, species: toSpecies(e.target.value) } }))
+                    }
                     onFocus={() => setFocusPageIndex(undefined)}
                   />
                 </Field>

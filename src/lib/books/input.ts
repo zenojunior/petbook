@@ -2,6 +2,7 @@
 // anything coming from the browser is untrusted input.
 import { z } from "zod";
 import { coverColors, coverPatterns } from "@/lib/domain/book-cover";
+import { speciesKeys } from "@/lib/domain/species";
 
 const optionalText = (max: number) =>
   z
@@ -16,7 +17,7 @@ const optionalDate = z
 
 export const newBookInput = z.object({
   petName: z.string().trim().min(1, "Tell us your pet's name.").max(80),
-  species: z.string().trim().min(1, "Tell us what kind of animal they are.").max(60),
+  species: z.enum(speciesKeys, "Choose what kind of animal they are."),
 });
 
 export const pageInput = z.object({
@@ -34,7 +35,7 @@ export const bookInput = z.object({
   coverPattern: z.enum(coverPatterns),
   pet: z.object({
     name: z.string().trim().min(1, "Your pet needs a name.").max(80),
-    species: z.string().trim().min(1, "Tell us what kind of animal they are.").max(60),
+    species: z.enum(speciesKeys, "Choose what kind of animal they are."),
     bornOn: optionalDate,
     adoptedOn: optionalDate,
     passedOn: optionalDate,
@@ -51,3 +52,9 @@ export const bookInput = z.object({
 });
 
 export type BookInput = z.input<typeof bookInput>;
+
+export const shareLinkInput = z.object({
+  bookId: z.uuid(),
+  enabled: z.boolean(),
+  reset: z.boolean().optional(),
+});

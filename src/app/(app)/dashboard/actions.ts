@@ -1,12 +1,13 @@
 "use server";
 
+import { randomBytes } from "node:crypto";
 import { and, eq } from "drizzle-orm";
 import { redirect } from "next/navigation";
 import { db } from "@/db";
 import { books, pages, pets } from "@/db/schema";
 import { requireUser } from "@/lib/auth";
 import { deleteUnusedImages } from "@/lib/books/images";
-import { bookInput, newBookInput, type BookInput } from "@/lib/books/input";
+import { bookInput, newBookInput, shareLinkInput, type BookInput } from "@/lib/books/input";
 import { pickCoverColor } from "@/lib/domain/book-cover";
 import { isBookImageUrl } from "@/lib/domain/book-images";
 import { fuzzLocation } from "@/lib/domain/fuzz-location";
@@ -89,4 +90,33 @@ export async function saveBook(bookId: string, input: BookInput): Promise<Action
   // Replaced or removed photos are not needed anymore.
   await deleteUnusedImages(book.id, photos);
   return { ok: true };
+}
+
+export type ShareLinkResult = { ok: true; token: string | null } | { ok: false; error: string };
+
+// Turns the "anyone with the link" share URL on or off. Turning it on reuses the current token;
+// reset: true makes a new one, so links sent before stop working. Only the owner can do this.
+export async function setShareLink(
+  bookId: string,
+  options: { enabled: boolean; reset?: boolean },
+): Promise<ShareLinkResult> {
+  const user = await requireUser(`/dashboard/books/${bookId}`);
+  const parsed = shareLinkInput.safeParse({ bookId, ...options });
+  if (!parsed.success) return { ok: false, error: "Invalid request." };
+
+  const [book] = await db
+    .select({ id: books.id, shareToken: books.shareToken })
+    .from(books)
+    .where(and(eq(books.id, parsed.data.bookId), eq(books.ownerId, user.id)));
+  if (!book) return { ok: false, error: "Book not found." };
+
+  const { enabled, reset } = parsed.data;
+  const token = !enabled ? null : reset || !book.shareToken ? newShareToken() : book.shareToken;
+  await db.update(books).set({ shareToken: token }).where(eq(books.id, book.id));
+  return { ok: true, token };
+}
+
+// 24 random bytes: long enough that a share link cannot be guessed.
+function newShareToken(): string {
+  return randomBytes(24).toString("base64url");
 }

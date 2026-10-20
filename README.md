@@ -12,6 +12,10 @@ Book editor: the dashboard lists your books and, when you have none, starts the 
 
 Photos: a cover photo and one photo per page. The browser shrinks them before uploading, and the server re-encodes every photo with sharp (max 1600px, WebP, no EXIF or GPS) into `UPLOAD_DIR/books/<book id>/`. Photos of a book that is not published are served only to its owner and admins. The pet's city is picked from an OpenStreetMap (Nominatim) city search; only the city name is kept and the coordinates are rounded by `fuzzLocation()`.
 
+Covers: each book has a color from a closed palette and a pattern (plain, stripes, dots, paws, check), picked in the editor and shown on the dashboard.
+
+Reader: a book opens closed and centered; tapping it opens the cover and turns the pages with a 3D page flip (keyboard arrows and swipe work, and `prefers-reduced-motion` turns the animation off). Published books are read at `/b/<slug>`. The **Share** button in the editor sets who can read a book: private, or anyone with a secret link (`/s/<token>`, works for drafts, not listed and not indexed; resetting the link breaks old ones). "Public on Petbook" is shown but waits for the review flow.
+
 Admin panel (read-only for now): overview with counts, users, books in any status, and the review queue with the reasons behind each decision. A Database page draws the schema (read from `src/db/schema.ts`) and shows the size of the database, of each table and of the uploaded images. User and book pages show how many images each book has and how much disk they use.
 
 Not yet: submitting for review, real map, moderation, admin actions (approve/reject, ban).
@@ -45,5 +49,6 @@ Migrations are not run by the container: apply them with `pnpm db:migrate` befor
 ## Next steps
 
 - Submit a draft for review: `canPublish()`, `transition()`, rule checks, then the AI moderator.
-- Public reader page and the real map (Leaflet) with the published books.
+- The real map (Leaflet) with the published books, and the flight from the map or a shelf into the reader.
+- A richer, Notion-like editor (Tiptap) and writing directly on the page.
 - In the editor on phones, a toggle between the form and the preview.

@@ -72,7 +72,7 @@ published → draft                 (unpublish)
 ## Rules that must never break
 
 1. **Authorization lives on the server.** Every write checks ownership (or `role = 'admin'`) in the route/action. There is no row-level security in the database, so the server check is the only check. Hiding a button is not authorization.
-2. **Drafts never leak.** Anything not `published` is visible only to its owner and admins. A public link to a non-published book shows "not available", with no content.
+2. **Drafts never leak.** Anything not `published` is visible only to its owner, admins, and whoever holds the book's secret share link (`/s/<token>`, turned on by the owner; never for a `rejected` book). The public address `/b/<slug>` of a non-published book shows "not available", with no content. Access rules live in `src/lib/domain/book-access.ts`.
 3. **No exact locations.** Store the city and coordinates rounded by `fuzzLocation()`. Never store or display a precise address.
 4. **Strip EXIF** (including GPS) from every uploaded image before it is stored.
 5. **Moderation fails safe.** An LLM error, timeout or out-of-schema answer sends the book to `needs_human`. Nothing is ever auto-published because something failed.

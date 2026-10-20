@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { getUser } from "@/lib/admin/data";
+import { speciesLabel } from "@/lib/domain/species";
 
 export default function UserPage({ params }: PageProps<"/admin/users/[id]">) {
   return (
@@ -93,7 +94,7 @@ async function UserDetail({ params }: Pick<PageProps<"/admin/users/[id]">, "para
                 <TableRow key={pet.id}>
                   <TableCell>
                     <span className="font-medium">{pet.name}</span>{" "}
-                    <span className="text-muted-foreground">({pet.species})</span>
+                    <span className="text-muted-foreground">({speciesLabel(pet.species)})</span>
                   </TableCell>
                   <TableCell>{pet.city ?? "—"}</TableCell>
                   <TableCell>

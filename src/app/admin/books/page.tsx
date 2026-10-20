@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { BOOK_STATUSES, listBooks, PAGE_SIZE, type BookStatus } from "@/lib/admin/data";
 import { booksParams } from "@/lib/admin/params";
+import { speciesLabel } from "@/lib/domain/species";
 
 export default function BooksPage({ searchParams }: PageProps<"/admin/books">) {
   return (
@@ -66,7 +67,7 @@ async function Books({ searchParams }: Pick<PageProps<"/admin/books">, "searchPa
                   </Link>
                 </TableCell>
                 <TableCell>
-                  {b.petName} <span className="text-muted-foreground">({b.species})</span>
+                  {b.petName} <span className="text-muted-foreground">({speciesLabel(b.species)})</span>
                 </TableCell>
                 <TableCell>
                   <Link href={`/admin/users/${b.ownerId}`} className="hover:underline">

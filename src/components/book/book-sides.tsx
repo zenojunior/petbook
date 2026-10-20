@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 import { CoverSurface } from "./cover-surface";
 import type { BookViewData, BookViewPage } from "./types";
 
-// The faces of a book drawn by <BookView>: the cover, a page and "The end".
+// The faces of a book drawn by <BookView>: the cover, the inside of the cover, a page and "The end".
 // Each side is its own size container, so text and padding scale with the page, not the screen.
 
 // The container query units (cqw) inside refer to this wrapper, so it must not be the element
@@ -79,6 +79,30 @@ export function CoverSide({ book }: { book: BookViewData }) {
               {[dates, pet.city].filter(Boolean).join(" · ")}
             </p>
           )}
+        </div>
+      </Side>
+    </CoverSurface>
+  );
+}
+
+// The inside of the front cover, seen on the left once the book opens: a label pasted on the
+// board, like an ex libris, naming whose story this is.
+export function PlateSide({ book }: { book: BookViewData }) {
+  const { pet } = book;
+  const dates = petDatesLine(pet);
+  return (
+    <CoverSurface color={book.coverColor} pattern="plain" className="size-full">
+      <Side className="items-center justify-center">
+        <div className="flex w-4/5 flex-col items-center gap-[3cqw] rounded-lg bg-card px-[6cqw] py-[9cqw] text-center text-card-foreground shadow-md">
+          <PawPrint className="size-[10cqw] text-muted-foreground/70" aria-hidden />
+          <p className={label}>The story of</p>
+          <p className="line-clamp-2 font-heading text-[clamp(1.1rem,9cqw,2.25rem)] leading-tight break-words">
+            {pet.name || "Your pet"}
+          </p>
+          <span className="h-px w-1/3 bg-border" aria-hidden />
+          <p className={cn(label, "truncate")}>
+            {[pet.species, dates].filter(Boolean).join(" · ") || "\u00a0"}
+          </p>
         </div>
       </Side>
     </CoverSurface>
