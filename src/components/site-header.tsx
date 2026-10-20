@@ -13,7 +13,7 @@ export function SiteHeader() {
           <Logo />
         </Link>
         <nav className="flex items-center gap-1">
-          <Button variant="ghost" nativeButton={false} render={<Link href="/#explore" />}>
+          <Button variant="ghost" nativeButton={false} render={<Link href="/explore" />}>
             Explore
           </Button>
           {/* Fixed width, so the session part streaming in does not push the links around. */}

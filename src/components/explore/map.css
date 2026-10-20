@@ -1,0 +1,28 @@
+.petbook-pin {
+  background: transparent;
+}
+.petbook-pin span {
+  display: grid;
+  width: 32px;
+  height: 32px;
+  place-items: center;
+  transform: rotate(-45deg);
+  border: 2px solid var(--background);
+  border-radius: 50% 50% 50% 0;
+  background: var(--primary);
+  color: var(--primary-foreground);
+  box-shadow: 0 2px 6px #0003;
+}
+.leaflet-container {
+  font-family: inherit;
+}
+.leaflet-popup-content a.petbook-popup-link {
+  display: block;
+  color: var(--foreground);
+  text-decoration: none;
+}
+.petbook-popup-link:hover { opacity: 0.85; }
+.leaflet-popup-content-wrapper, .leaflet-popup-tip {
+  background: var(--card);
+  color: var(--card-foreground);
+}

@@ -1,5 +1,6 @@
 import { BookOpen, Feather, Globe2, Heart, ImageOff, MapPinned, ShieldCheck, Sparkles } from "lucide-react";
 import Link from "next/link";
+import { Suspense } from "react";
 import { BookPreview } from "@/components/landing/book-preview";
 import { MapPreview } from "@/components/landing/map-preview";
 import { Logo } from "@/components/logo";
@@ -7,7 +8,7 @@ import { Button } from "@/components/ui/button";
 
 // The dashboard asks for sign-in first and brings the author back afterwards.
 const WRITE_HREF = "/dashboard";
-const EXPLORE_HREF = "/#explore";
+const EXPLORE_HREF = "/explore";
 
 export default function LandingPage() {
   return (
@@ -141,10 +142,13 @@ function Explore() {
           </p>
           <p className="flex items-center gap-2 text-sm text-muted-foreground">
             <MapPinned className="size-4" />
-            The map opens with the first published books.
+            Only reviewed, published books appear here.
           </p>
         </div>
-        <MapPreview />
+        <div className="min-w-0 space-y-4">
+          <Suspense fallback={<div className="flex h-[420px] items-center justify-center rounded-2xl border text-sm text-muted-foreground">Loading map…</div>}><MapPreview /></Suspense>
+          <Button variant="outline" nativeButton={false} render={<Link href="/explore" />}>Explore all stories</Button>
+        </div>
       </div>
     </section>
   );
