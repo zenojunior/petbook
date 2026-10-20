@@ -1,5 +1,6 @@
 import "server-only";
-import { and, asc, eq, isNull } from "drizzle-orm";
+import { and, asc, eq, ilike, isNull, or } from "drizzle-orm";
+import { z } from "zod";
 import { cacheLife, cacheTag } from "next/cache";
 import { db } from "@/db";
 import { books, pets, siteSettings } from "@/db/schema";
@@ -24,6 +25,28 @@ export async function listFeaturableBooks() {
     .innerJoin(pets, eq(books.petId, pets.id))
     .where(and(eq(books.status, "published"), isNull(books.deletedAt)))
     .orderBy(asc(pets.name));
+}
+
+export type FeaturableBook = { id: string; title: string; petName: string; city: string | null };
+
+// Admin search by id, book title, pet name or city. Not cached: it runs on demand and returns a few rows.
+export async function searchFeaturableBooks(query: string, limit = 8): Promise<FeaturableBook[]> {
+  const text = query.trim();
+  const escaped = text.replace(/[\\%_]/g, "\\$&");
+  const match = z.uuid().safeParse(text).success
+    ? eq(books.id, text)
+    : or(ilike(books.title, `%${escaped}%`), ilike(pets.name, `%${escaped}%`), ilike(pets.city, `%${escaped}%`));
+  return db
+    .select({ id: books.id, title: books.title, petName: pets.name, city: pets.city })
+    .from(books)
+    .innerJoin(pets, eq(books.petId, pets.id))
+    .where(and(eq(books.status, "published"), isNull(books.deletedAt), match))
+    .orderBy(asc(pets.name))
+    .limit(limit);
+}
+
+export async function getFeaturableBook(id: string): Promise<FeaturableBook | null> {
+  return (await searchFeaturableBooks(id, 1))[0] ?? null;
 }
 
 export async function getPinnedBookId(): Promise<string | null> {

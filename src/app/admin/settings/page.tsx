@@ -3,7 +3,7 @@ import { FeaturedBookForm } from "@/components/admin/featured-book-form";
 import { PageHeader } from "@/components/admin/page-header";
 import { TableSkeleton } from "@/components/skeletons";
 import { requireAdmin } from "@/lib/auth";
-import { getPinnedBookId, listFeaturableBooks } from "@/lib/books/featured";
+import { getFeaturableBook, getPinnedBookId } from "@/lib/books/featured";
 
 export default function SettingsPage() {
   return (
@@ -21,6 +21,7 @@ export default function SettingsPage() {
 
 async function FeaturedBook() {
   await requireAdmin();
-  const [books, pinnedId] = await Promise.all([listFeaturableBooks(), getPinnedBookId()]);
-  return <FeaturedBookForm books={books} pinnedId={pinnedId} />;
+  const pinnedId = await getPinnedBookId();
+  const pinned = pinnedId ? await getFeaturableBook(pinnedId) : null;
+  return <FeaturedBookForm pinned={pinned} />;
 }

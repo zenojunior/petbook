@@ -7,7 +7,7 @@ import { db } from "@/db";
 import { books, siteSettings } from "@/db/schema";
 import type { ActionResult } from "@/app/(app)/dashboard/actions";
 import { requireAdmin } from "@/lib/auth";
-import { FEATURED_BOOK_KEY, FEATURED_TAG } from "@/lib/books/featured";
+import { FEATURED_BOOK_KEY, FEATURED_TAG, searchFeaturableBooks, type FeaturableBook } from "@/lib/books/featured";
 
 // Pins a published book on the landing page, or (bookId = null) goes back to a random one.
 export async function setFeaturedBook(bookId: string | null): Promise<ActionResult> {
@@ -31,4 +31,11 @@ export async function setFeaturedBook(bookId: string | null): Promise<ActionResu
   updateTag(FEATURED_TAG);
   revalidatePath("/admin/settings");
   return { ok: true };
+}
+
+// Finds published books to feature, by id, title, pet name or city.
+export async function searchBooksToFeature(query: string): Promise<FeaturableBook[]> {
+  await requireAdmin();
+  const parsed = z.string().trim().min(2).max(100).safeParse(query);
+  return parsed.success ? searchFeaturableBooks(parsed.data) : [];
 }
